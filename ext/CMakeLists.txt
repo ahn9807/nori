@@ -34,6 +34,9 @@ endif()
 
 if (APPLE)
   set(CMAKE_MACOSX_RPATH ON)
+
+  # Disable OpenGL deprecation warnings
+  add_definitions(-DGL_SILENCE_DEPRECATION)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
