@@ -2,7 +2,7 @@ language: cpp
 dist: trusty
 sudo: false
 os: linux
-compiler: gcc-6
+compiler: gcc-7
 notifications:
   email: false
 
@@ -12,7 +12,7 @@ addons:
       - ubuntu-toolchain-r-test
       - kubuntu-backports
     packages:
-      - g++-6
+      - g++-7
       - libglu1-mesa-dev
       - libxxf86vm-dev
       - libxrandr-dev
@@ -48,7 +48,7 @@ script:
   - |
     if [[ -f touch_order.txt ]]; then
       while read fn; do
-        touch $fn
+        touch $fn || true
       done < touch_order.txt
       # Now, touch changed git files to trigger their rebuild
       read PREVIOUS_GIT_COMMIT < previous_git_commit.txt
@@ -57,9 +57,9 @@ script:
       echo "Files changed since then:"
       echo $changed_files
       cd ..
-      touch `echo $changed_files`
+      touch `echo $changed_files` || true
     else
-      cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=g++-6 -DCMAKE_C_COMPILER=gcc-6 ..
+      cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7 ..
     fi
   # Either way, run `make` to build newest changes.
   - cd "${TRAVIS_BUILD_DIR}/build"
