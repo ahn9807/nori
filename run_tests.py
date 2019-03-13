@@ -19,7 +19,7 @@ TEST_WARPS = [
     ("uniform_sphere", None),
     ("uniform_hemisphere", None),
     ("cosine_hemisphere", None),
-    ("beckmann", 0.01),
+    ("beckmann", 0.05),
     ("beckmann", 0.10),
     ("beckmann", 0.30),
     # ("microfacet_brdf", 0.01),
