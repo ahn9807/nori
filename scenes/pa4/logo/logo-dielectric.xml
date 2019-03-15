@@ -1,31 +1,33 @@
-
 <scene>
     <integrator type="whitted"/>
 
     <sampler type="independent">
         <!-- You might want to reduce this number during development -->
-        <integer name="sampleCount" value="512"/>
+        <integer name="sampleCount" value="4096"/>
+        <!-- <integer name="sampleCount" value="16"/> -->
     </sampler>
 
     <camera type="perspective">
         <!-- Camera-to-world coordinate system transformation -->
         <transform name="toWorld">
-            <matrix value="-0.8990397887494896, -0.10195732585744223, -0.42583114253101817, 9.67120708926533, -0.014501815214377626, 0.9789123711002534, -0.20376522535105876, 2.701559486129863, 0.437626730902902, -0.17701772061259594, -0.8815597376175706, 12.558229946078217, -0.0, 0.0, -0.0, 1.0"/>
+            <lookat origin="2.668, 1.078, 6.668" target="-0.841,0.85,-0.051" up="0,1,0"/>
         </transform>
 
-        <!-- Field of view: 35 degrees -->
-        <float name="fov" value="35"/>
+        <float name="fov" value="60"/>
 
-        <!-- 768 x 768 pixels -->
         <integer name="width" value="768"/>
         <integer name="height" value="384"/>
     </camera>
 
     <mesh type="obj">
-        <string name="filename" value="meshes/motto_2018.obj"/>
-        <bsdf type="diffuse">
-            <color name="albedo" value="0.5, 0.5, 0.5"/>
-        </bsdf>
+        <!--
+            Pineapple SVG:
+            CC BY-NC 4.0 Licence
+            "Pineapple Black And White" (http://clipartmag.com/pineapple-black-and-white)
+            http://clipartmag.com/pineapple-black-and-white#pineapple-black-and-white-2.jpg
+         -->
+        <string name="filename" value="meshes/logo.obj"/>
+        <bsdf type="dielectric"/>
     </mesh>
 
     <mesh type="obj">
@@ -33,19 +35,22 @@
         <bsdf type="diffuse">
             <color name="albedo" value="0.5, 0.5, 0.5"/>
         </bsdf>
+        <transform name="toWorld">
+            <scale value="6, 6, 6"/>
+        </transform>
     </mesh>
 
     <mesh type="obj">
         <string name="filename" value="meshes/light1.obj"/>
         <emitter type="area">
-            <color name="radiance" value="20, 80, 30"/>
+            <color name="radiance" value="60, 200, 120"/>
         </emitter>
     </mesh>
 
     <mesh type="obj">
         <string name="filename" value="meshes/light2.obj"/>
         <emitter type="area">
-            <color name="radiance" value="20, 20, 200"/>
+            <color name="radiance" value="80, 80, 800"/>
         </emitter>
     </mesh>
 </scene>
