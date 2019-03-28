@@ -54,7 +54,10 @@ def test_warps_and_scenes(scenes, warps):
     for (warp_type, param) in warps:
         args = [os.path.join(build_dir, "warptest"), warp_type]
         if param is not None:
-            args.append(str(param))
+            if not isinstance(param, (list, tuple)):
+                param = [param]
+            for p in param:
+                args.append(str(p))
         ret = subprocess.call(args)
         if ret == 0:
             passed += 1
@@ -70,7 +73,7 @@ def test_warps_and_scenes(scenes, warps):
         return False
     else:
         print("\033[92m" + "Passed " + str(passed) + " / " + str(total) + " tests." + "\033[0m")
-        print("\tNice!")
+        print("\tGood job!")
 
     return True
 
