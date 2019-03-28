@@ -6,10 +6,10 @@ import sys
 TEST_SCENES = [
     "pa4/tests/test-mesh.xml",
     "pa4/tests/test-mesh-furnace.xml",
-    # "pa5/tests/chi2test-microfacet.xml",
-    # "pa5/tests/ttest-microfacet.xml",
-    # "pa5/tests/test-direct.xml",
-    # "pa5/tests/test-furnace.xml",
+    "pa5/tests/chi2test-microfacet.xml",
+    "pa5/tests/ttest-microfacet.xml",
+    "pa5/tests/test-direct.xml",
+    "pa5/tests/test-furnace.xml",
 ]
 
 TEST_WARPS = [
@@ -22,9 +22,12 @@ TEST_WARPS = [
     ("beckmann", 0.05),
     ("beckmann", 0.10),
     ("beckmann", 0.30),
-    # ("microfacet_brdf", 0.01),
-    # ("microfacet_brdf", 0.10),
-    # ("microfacet_brdf", 0.30),
+    ("microfacet_brdf", 0.05),
+    ("microfacet_brdf", 0.10),
+    ("microfacet_brdf", 0.30),
+    ("microfacet_brdf", (0.05, 0.5)),
+    ("microfacet_brdf", (0.10, 0.5)),
+    ("microfacet_brdf", (0.30, 0.5)),
 ]
 
 def find_build_directory():
