@@ -13,6 +13,26 @@ footer {
   padding: 30px 0;
 }
 
+table {
+    width: 100%;
+    border: 1px solid gray;
+    text-align: center;
+}
+table tr {
+    border-bottom: 1px solid gray;
+}
+table th {
+    padding: 0.5em;
+    border-bottom: 1px solid gray;
+}
+table td:first-child {
+    text-align: left;
+}
+table td {
+    padding: 1em;
+    border-right: 1px solid gray;
+}
+
 /*
  * Off Canvas
  * --------------------------------------------------
