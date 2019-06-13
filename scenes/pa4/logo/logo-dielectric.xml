@@ -1,0 +1,56 @@
+<scene>
+    <integrator type="whitted"/>
+
+    <sampler type="independent">
+        <!-- You might want to reduce this number during development -->
+        <integer name="sampleCount" value="4096"/>
+        <!-- <integer name="sampleCount" value="16"/> -->
+    </sampler>
+
+    <camera type="perspective">
+        <!-- Camera-to-world coordinate system transformation -->
+        <transform name="toWorld">
+            <lookat origin="2.668, 1.078, 6.668" target="-0.841,0.85,-0.051" up="0,1,0"/>
+        </transform>
+
+        <float name="fov" value="60"/>
+
+        <integer name="width" value="768"/>
+        <integer name="height" value="384"/>
+    </camera>
+
+    <mesh type="obj">
+        <!--
+            Pineapple SVG:
+            CC BY-NC 4.0 Licence
+            "Pineapple Black And White" (http://clipartmag.com/pineapple-black-and-white)
+            http://clipartmag.com/pineapple-black-and-white#pineapple-black-and-white-2.jpg
+         -->
+        <string name="filename" value="meshes/logo.obj"/>
+        <bsdf type="dielectric"/>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="filename" value="meshes/floor.obj"/>
+        <bsdf type="diffuse">
+            <color name="albedo" value="0.5, 0.5, 0.5"/>
+        </bsdf>
+        <transform name="toWorld">
+            <scale value="6, 6, 6"/>
+        </transform>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="filename" value="meshes/light1.obj"/>
+        <emitter type="area">
+            <color name="radiance" value="60, 200, 120"/>
+        </emitter>
+    </mesh>
+
+    <mesh type="obj">
+        <string name="filename" value="meshes/light2.obj"/>
+        <emitter type="area">
+            <color name="radiance" value="80, 80, 800"/>
+        </emitter>
+    </mesh>
+</scene>

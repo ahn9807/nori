@@ -1,0 +1,80 @@
+language: cpp
+dist: trusty
+sudo: false
+os: linux
+compiler: gcc-7
+notifications:
+  email: false
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - kubuntu-backports
+    packages:
+      - g++-7
+      - libglu1-mesa-dev
+      - libxxf86vm-dev
+      - libxrandr-dev
+      - libxinerama-dev
+      - libxcursor-dev
+      - libxi-dev
+      - libx11-dev
+      - cmake
+
+cache:
+  directories:
+    - build
+
+install:
+  - echo ${PATH}
+  - echo ${CXX}
+  - ${CXX} --version
+  - ${CXX} -v
+  - mkdir -p "${TRAVIS_BUILD_DIR}/build"
+
+# Incremental builds script from:
+# https://blog.esciencecenter.nl/travis-caching-and-incremental-builds-6518b89ee889
+# https://github.com/roofit-dev/root/blob/2cc63b8b3d0a7c3acca4381e1bc5a7ef3e01a94c/.travis.yml
+script:
+  # ----- Build phase
+  # Two cases:
+  # 1. There was a previous build, which was restored from the cache.
+  #    Use `touch_order.txt` to update the 'last modified' timestamp
+  #    of each file. Finally, update 'last modified' of files that have
+  #    changed since the last build.
+  # 2. No previous build available, run `cmake`.
+  - cd "${TRAVIS_BUILD_DIR}/build"
+  - |
+    if [[ -f touch_order.txt ]]; then
+      while read fn; do
+        touch $fn || true
+      done < touch_order.txt
+      # Now, touch changed git files to trigger their rebuild
+      read PREVIOUS_GIT_COMMIT < previous_git_commit.txt
+      changed_files=`git diff --name-only $PREVIOUS_GIT_COMMIT HEAD`
+      echo "Previously cached Travis build based on git commit ${PREVIOUS_GIT_COMMIT}."
+      echo "Files changed since then:"
+      echo $changed_files
+      cd ..
+      touch `echo $changed_files` || true
+    else
+      cmake ${CMAKE_OPTIONS} -DCMAKE_CXX_COMPILER=g++-7 -DCMAKE_C_COMPILER=gcc-7 ..
+    fi
+  # Either way, run `make` to build newest changes.
+  - cd "${TRAVIS_BUILD_DIR}/build"
+  - make -j2
+  # ----- Test phase
+  - cd .. && python run_tests.py
+
+before_cache:
+  # Save the order of timestamps of the files so we can recreate it with touch in
+  # the next build. N.B.: just tarring the build files doesn't work, since the
+  # git clone will still be newer.
+  # The build tools (`make` at least) only care about order, not about
+  # absolute timestamps.
+  - cd "${TRAVIS_BUILD_DIR}/build"
+  - find . -type f -printf "%T+\t%p\n" | sort | cut -f 2 > ./touch_order.txt
+  # Also store the SHA of the commit that was just built, so that we can figure
+  # out which files have changed since.
+  - cd "${TRAVIS_BUILD_DIR}" && git rev-parse HEAD > ./build/previous_git_commit.txt

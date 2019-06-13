@@ -34,6 +34,9 @@ endif()
 
 if (APPLE)
   set(CMAKE_MACOSX_RPATH ON)
+
+  # Disable OpenGL deprecation warnings
+  add_definitions(-DGL_SILENCE_DEPRECATION)
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
@@ -45,7 +48,20 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
   elseif (HAS_CPP11_FLAG)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
   else()
-    message(FATAL_ERROR "Unsupported compiler -- Mitsuba requires C++11 support!")
+    message(FATAL_ERROR "Unsupported compiler -- Nori requires C++11 support!")
+  endif()
+
+  # Prefer libc++ in conjunction with Clang
+  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    CHECK_CXX_COMPILER_FLAG("-stdlib=libc++" HAS_LIBCPP)
+    if (HAS_LIBCPP)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++ -D_LIBCPP_VERSION")
+      set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+      set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -stdlib=libc++")
+      message(STATUS "Nori: using libc++.")
+    else()
+      message(WARNING "libc++ is recommended in conjunction with clang. Please insteall the libc++ development headers, provided e.g. by the packages 'libc++-dev' and 'libc++abi-dev' on Debian/Ubuntu.")
+    endif()
   endif()
 
   # Enable link time optimization and set the default symbol
@@ -53,6 +69,11 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU"
   if (NOT ${U_CMAKE_BUILD_TYPE} MATCHES DEBUG)
     # Default symbol visibility
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden")
+  endif()
+
+  # Disable specific GCC 7 warnings
+  if (CMAKE_COMPILER_IS_GNUCC AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 7.0)
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations -Wno-misleading-indentation -Wformat-truncation=0 -Wno-int-in-bool-context -Wimplicit-fallthrough=0")
   endif()
 endif()
 
@@ -113,11 +134,18 @@ set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLi
 
 # Build Thread Building Blocks (main shared libraries only)
 set(TBB_BUILD_SHARED          OFF  CACHE BOOL " " FORCE)
+<<<<<<< HEAD
 set(TBB_BUILD_STATIC          ON  CACHE BOOL " " FORCE)
 set(TBB_BUILD_TBBMALLOC       OFF CACHE BOOL " " FORCE)
 set(TBB_BUILD_TBBMALLOC_PROXY OFF CACHE BOOL " " FORCE)
 set(TBB_BUILD_TESTS           OFF CACHE BOOL " " FORCE)
 
+=======
+set(TBB_BUILD_STATIC          ON   CACHE BOOL " " FORCE)
+set(TBB_BUILD_TBBMALLOC       OFF  CACHE BOOL " " FORCE)
+set(TBB_BUILD_TBBMALLOC_PROXY OFF  CACHE BOOL " " FORCE)
+set(TBB_BUILD_TESTS           OFF  CACHE BOOL " " FORCE)
+>>>>>>> d7c547f4dc24bb629bd3724612903b13804f4533
 add_subdirectory(tbb)
 set_property(TARGET tbb_static tbb_def_files PROPERTY FOLDER "dependencies")
 
@@ -138,7 +166,7 @@ set_property(TARGET pugixml PROPERTY
    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/pugixml")
 set_property(TARGET pugixml PROPERTY FOLDER "dependencies")
 
-set(OPENEXR_INCLUDE_DIRS 
+set(OPENEXR_INCLUDE_DIRS
   ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Imath
   ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Iex
   ${CMAKE_CURRENT_SOURCE_DIR}/openexr/IlmBase/Half
@@ -147,7 +175,7 @@ set(OPENEXR_INCLUDE_DIRS
   ${CMAKE_CURRENT_BINARY_DIR}/openexr/IlmBase/config)
 set(PCG32_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/pcg32)
-set(TFM_INCLUDE_DIR 
+set(TFM_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/tinyformat)
 set(HYPOTHESIS_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/hypothesis)
@@ -157,6 +185,8 @@ set(GLEW_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/nanogui/ext/glew/include)
 set(NANOVG_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/nanogui/ext/nanovg/src)
+set(STB_IMAGE_WRITE_INCLUDE_DIR
+  ${CMAKE_CURRENT_SOURCE_DIR}/nanogui/ext/nanovg/example)
 set(NANOGUI_INCLUDE_DIR
   ${CMAKE_CURRENT_SOURCE_DIR}/nanogui/include)
 set(EIGEN_INCLUDE_DIR
@@ -176,6 +206,11 @@ if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
   endif()
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+  # Re-enable disabled warnings
+  # if(CMAKE_CXX_FLAGS MATCHES "-Wno-[^ ]+")
+  #   string(REGEX REPLACE "-Wno-[^ ]+" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+  # endif()
+
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-unused-parameter")
   if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-gnu-anonymous-struct -Wno-c99-extensions -Wno-nested-anon-types -Wno-deprecated-register")
@@ -191,8 +226,9 @@ set(CompilerFlags
       OPENEXR_INCLUDE_DIRS PCG32_INCLUDE_DIR TFM_INCLUDE_DIR
       HYPOTHESIS_INCLUDE_DIR GLFW_INCLUDE_DIR GLEW_INCLUDE_DIR
       NANOVG_INCLUDE_DIR NANOGUI_EXTRA_INCS NANOGUI_EXTRA_DEFS
-	  NANOGUI_EXTRA_LIBS NANOGUI_INCLUDE_DIR EIGEN_INCLUDE_DIR
-	  TBB_INCLUDE_DIR FILESYSTEM_INCLUDE_DIR PUGIXML_INCLUDE_DIR
+	    NANOGUI_EXTRA_LIBS NANOGUI_INCLUDE_DIR EIGEN_INCLUDE_DIR
+      STB_IMAGE_WRITE_INCLUDE_DIR TBB_INCLUDE_DIR
+      FILESYSTEM_INCLUDE_DIR PUGIXML_INCLUDE_DIR
 )
 foreach(CompilerFlag ${CompilerFlags})
   set(${CompilerFlag} "${${CompilerFlag}}" PARENT_SCOPE)

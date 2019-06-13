@@ -12,6 +12,8 @@ Makefile
 build.ninja
 rules.ninja
 .vs
+*.sublime-workspace
+*.sublime-project
 *.vcxproj
 *.filters
 *.sdf
