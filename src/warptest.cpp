@@ -485,11 +485,7 @@ public:
         proj = frustum(-fW, fW, -fH, fH, near, far);
 
         model.setIdentity();
-<<<<<<< HEAD
-        model = translate(Vector3f(-0.5f, -0.5f, 0.0f)) * model;
-=======
         model *= translate(Vector3f(-0.5f, -0.5f, 0.0f));
->>>>>>> d7c547f4dc24bb629bd3724612903b13804f4533
         model = m_arcball.matrix() * model;
 
         if (m_drawHistogram) {

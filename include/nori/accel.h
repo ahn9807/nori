@@ -19,6 +19,7 @@
 #pragma once
 
 #include <nori/mesh.h>
+#include <nori/octree.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -68,6 +69,7 @@ public:
 private:
     Mesh         *m_mesh = nullptr; ///< Mesh (only a single one for now)
     BoundingBox3f m_bbox;           ///< Bounding box of the entire scene
+    Octree* m_octree;
 };
 
 NORI_NAMESPACE_END

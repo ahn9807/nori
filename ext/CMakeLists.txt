@@ -134,18 +134,9 @@ set_property(TARGET IexMath eLut toFloat b44ExpLogTable dwaLookups CopyIlmBaseLi
 
 # Build Thread Building Blocks (main shared libraries only)
 set(TBB_BUILD_SHARED          OFF  CACHE BOOL " " FORCE)
-<<<<<<< HEAD
 set(TBB_BUILD_STATIC          ON  CACHE BOOL " " FORCE)
 set(TBB_BUILD_TBBMALLOC       OFF CACHE BOOL " " FORCE)
 set(TBB_BUILD_TBBMALLOC_PROXY OFF CACHE BOOL " " FORCE)
-set(TBB_BUILD_TESTS           OFF CACHE BOOL " " FORCE)
-
-=======
-set(TBB_BUILD_STATIC          ON   CACHE BOOL " " FORCE)
-set(TBB_BUILD_TBBMALLOC       OFF  CACHE BOOL " " FORCE)
-set(TBB_BUILD_TBBMALLOC_PROXY OFF  CACHE BOOL " " FORCE)
-set(TBB_BUILD_TESTS           OFF  CACHE BOOL " " FORCE)
->>>>>>> d7c547f4dc24bb629bd3724612903b13804f4533
 add_subdirectory(tbb)
 set_property(TARGET tbb_static tbb_def_files PROPERTY FOLDER "dependencies")
 
