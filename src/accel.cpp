@@ -52,11 +52,10 @@ bool Accel::rayIntersect(const Ray3f &ray_, Intersection &its, bool shadowRay) c
     m_octree->search(ray, index);
     if(index != -1) {
         float u,v,t;
-        if(shadowRay)
-            return true;
         
         if(m_mesh->rayIntersect(index, ray, u, v, t)) {
-
+            if(shadowRay)
+                return true;
             ray.maxt = its.t = t;
             its.uv = Point2f(u, v);
             its.mesh = m_mesh;
