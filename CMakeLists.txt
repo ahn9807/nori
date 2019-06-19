@@ -93,6 +93,7 @@ add_executable(nori
   src/octree.cpp
   src/simple.cpp
   src/ao.cpp
+  src/area.cpp
 )
 
 add_definitions(${NANOGUI_EXTRA_DEFS})
