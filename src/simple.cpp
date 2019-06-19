@@ -7,8 +7,7 @@
 
 #include <nori/integrator.h>
 #include <nori/scene.h>
-
-#define EPSILON 1.f
+#include <nori/warp.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -31,8 +30,6 @@ public:
         distanceVector.normalize();
         Color3f albedo = m_energy / (4 * M_PI * M_PI);
         Ray3f shadowRay = Ray3f(hitInWorld, distanceVector);
-        shadowRay.mint = EPSILON;
-        shadowRay.maxt = distance;
         float cosine = std::max(0.f, its.shFrame.n.dot(distanceVector));
         
         if(!scene->rayIntersect(shadowRay)) {
