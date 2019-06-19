@@ -17,10 +17,9 @@ public:
         m_radiance = props.getColor("radiance");
     }
     
-    Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray) const {
-        
+    std::string toString() const {
+        return "Area Light";
     }
-    
 private:
     Color3f m_radiance;
 };

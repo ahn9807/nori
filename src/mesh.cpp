@@ -38,6 +38,27 @@ void Mesh::activate() {
         m_bsdf = static_cast<BSDF *>(
             NoriObjectFactory::createInstance("diffuse", PropertyList()));
     }
+    m_PDF = DiscretePDF(getTriangleCount());
+    for(int i=0;i<getTriangleCount();i++) {
+        m_PDF.append(surfaceArea(i));
+    }
+    m_PDF.normalize();
+}
+
+Point3f Mesh::sample(Sampler *sample) {
+    uint32_t index = m_PDF.sample(sample->next1D());
+    
+    uint32_t i0 = m_F(0, index), i1 = m_F(1, index), i2 = m_F(2, index);
+    const Point3f p0 = m_V.col(i0), p1 = m_V.col(i1), p2 = m_V.col(i2);
+    
+    return (i1 - i0) * drand48() + (i2 - i0) * drand48();
+}
+
+Normal3f Mesh::getFaceNormalMean(uint32_t index) {
+    uint32_t i0 = m_F(0, index), i1 = m_F(1, index), i2 = m_F(2, index);
+    const Point3f p0 = m_N.col(i0), p1 = m_V.col(i1), p2 = m_V.col(i2);
+    
+    return (p0 + p1 + p2)/3.f;
 }
 
 float Mesh::surfaceArea(uint32_t index) const {

@@ -21,6 +21,7 @@
 #include <nori/object.h>
 #include <nori/frame.h>
 #include <nori/bbox.h>
+#include <nori/dpdf.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -162,7 +163,16 @@ public:
      * provided by this instance
      * */
     EClassType getClassType() const { return EMesh; }
-
+    
+    /// Implemented by junho
+    float getPDF() {
+        return m_PDF.getSum();
+    }
+    
+    Point3f sample(Sampler *sample);
+    
+    Normal3f getFaceNormalMean(uint32_t index);
+    
 protected:
     /// Create an empty mesh
     Mesh();
@@ -176,6 +186,7 @@ protected:
     BSDF         *m_bsdf = nullptr;      ///< BSDF of the surface
     Emitter    *m_emitter = nullptr;     ///< Associated emitter, if any
     BoundingBox3f m_bbox;                ///< Bounding box of the mesh
+    DiscretePDF   m_PDF;                 ///< junho
 };
 
 NORI_NAMESPACE_END
