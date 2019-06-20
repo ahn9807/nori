@@ -39,26 +39,46 @@ void Mesh::activate() {
             NoriObjectFactory::createInstance("diffuse", PropertyList()));
     }
     m_PDF = DiscretePDF(getTriangleCount());
-    for(int i=0;i<getTriangleCount();i++) {
+    for(uint32_t i=0;i<getTriangleCount();i++) {
         m_PDF.append(surfaceArea(i));
     }
     m_PDF.normalize();
 }
 
-Point3f Mesh::sample(Sampler *sample) {
-    uint32_t index = m_PDF.sample(sample->next1D());
+void Mesh::sample(Sampler *sampler, Point3f &position, Normal3f &normal) {
+    uint32_t index = m_PDF.sample(sampler->next1D());
     
     uint32_t i0 = m_F(0, index), i1 = m_F(1, index), i2 = m_F(2, index);
     const Point3f p0 = m_V.col(i0), p1 = m_V.col(i1), p2 = m_V.col(i2);
     
-    return (i1 - i0) * drand48() + (i2 - i0) * drand48();
+    float r = sqrt(1-sampler->next1D());
+    float a = 1 - r;
+    float b = sampler->next1D() * r;
+    
+    position = p0 + a * (p1 - p0) + b * (p2 - p0);
+    normal = getFaceNormalMean(index);
 }
 
 Normal3f Mesh::getFaceNormalMean(uint32_t index) {
     uint32_t i0 = m_F(0, index), i1 = m_F(1, index), i2 = m_F(2, index);
-    const Point3f p0 = m_N.col(i0), p1 = m_V.col(i1), p2 = m_V.col(i2);
+    Normal3f normal;
     
-    return (p0 + p1 + p2)/3.f;
+    Point3f p0, p1, p2;
+    if(m_N.size() == 0) {
+        p0 = m_V.col(i0); p1 = m_V.col(i1); p2 = m_V.col(i2);
+        normal = (p2 - p0).cross(p1 - p0);
+        normal.normalize();
+        return normal;
+    }
+    p0 = m_N.col(i0), p1 = m_N.col(i1), p2 = m_N.col(i2);
+    
+    float r = sqrt(drand48());
+    float a = 1 - r;
+    float b = drand48() * r;
+    
+    normal = p0 + a * (p1 - p0) + b * (p2 - p0);
+    normal.normalize();
+    return normal;
 }
 
 float Mesh::surfaceArea(uint32_t index) const {

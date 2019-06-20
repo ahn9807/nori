@@ -165,11 +165,11 @@ public:
     EClassType getClassType() const { return EMesh; }
     
     /// Implemented by junho
-    float getPDF() {
+    float getTotalSurfaceArea() const {
         return m_PDF.getSum();
     }
     
-    Point3f sample(Sampler *sample);
+    void sample(Sampler *sample, Point3f &position, Normal3f &normal);
     
     Normal3f getFaceNormalMean(uint32_t index);
     

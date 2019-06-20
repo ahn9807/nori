@@ -19,6 +19,7 @@
 #pragma once
 
 #include <nori/object.h>
+#include <nori/mesh.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -27,11 +28,20 @@ NORI_NAMESPACE_BEGIN
  */
 class Emitter : public NoriObject {
 public:
-
+    virtual Color3f sample(Sampler *sampler) const = 0;
+    
+    virtual Color3f Le(const Point3f &p, const Normal3f &n, const Vector3f &w_o) const = 0;
+    
+    virtual bool rayIntersect(const Scene* scene, Ray3f &shadowRay, Intersection &its) const = 0;
+    
+    virtual bool rayIntersect(const Scene* scene, Ray3f &shadowRay) const = 0;
+    
+    virtual bool isDeltaLight() const = 0;
     /**
      * \brief Return the type of object (i.e. Mesh/Emitter/etc.) 
      * provided by this instance
      * */
+    
     EClassType getClassType() const { return EEmitter; }
 };
 

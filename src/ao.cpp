@@ -9,8 +9,6 @@
 #include <nori/scene.h>
 #include <nori/warp.h>
 
-#define EPSILON 1.f
-#define SAMPLESIZE 10
 #define ALPHA = MAXFLOAT;
 
 NORI_NAMESPACE_BEGIN
@@ -33,20 +31,18 @@ public:
         Point3f samplePoint;
         Ray3f shadowRay;
         float cosine;
-        for(int i=0; i<SAMPLESIZE; i++) {
-            sample = Warp::squareToUniformHemisphere(sampler->next2D());
-            samplePoint = its.toWorld(sample);
-            shadowRay = Ray3f(its.p,samplePoint);
-            
-            if(!scene->rayIntersect(shadowRay)) {
-                its.shFrame.n.normalize();
-                samplePoint.normalize();
-                cosine = samplePoint.dot(its.shFrame.n);
-                returnColor += Color3f((cosine / M_PI)) / Warp::squareToUniformHemispherePdf(sample);
-            }
+        sample = Warp::squareToUniformHemisphere(sampler->next2D());
+        samplePoint = its.toWorld(sample);
+        shadowRay = Ray3f(its.p,samplePoint);
+        
+        if(!scene->rayIntersect(shadowRay)) {
+            its.shFrame.n.normalize();
+            samplePoint.normalize();
+            cosine = samplePoint.dot(its.shFrame.n);
+            returnColor = Color3f((cosine / M_PI)) / Warp::squareToUniformHemispherePdf(sample);
         }
         
-        return returnColor / (float)SAMPLESIZE;
+        return returnColor;
     }
     
     std::string toString() const {

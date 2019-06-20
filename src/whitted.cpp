@@ -7,6 +7,9 @@
 
 #include <nori/integrator.h>
 #include <nori/scene.h>
+#include <nori/emitter.h>
+#include <nori/bsdf.h>
+#include <nori/dpdf.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -16,21 +19,76 @@ public:
         /* No parameters this time */
     }
     
+    void preprocess(const Scene *scene) {
+        for(auto object:scene->getMeshes()) {
+            if(object->isEmitter())
+                lights.push_back(object);
+        }
+        
+        m_light_pdf = DiscretePDF(lights.size());
+        for(auto object:lights) {
+            m_light_pdf.append(object->getTotalSurfaceArea());
+        }
+        m_light_pdf.normalize();
+    }
+    
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray) const {
-        /* Find the surface that is visible in the requested direction */
         Intersection its;
         if (!scene->rayIntersect(ray, its))
             return Color3f(0.0f);
         
-        /* Return the component-wise absolute
-         value of the shading normal as a color */
-        Normal3f n = its.shFrame.n.cwiseAbs();
-        return Color3f(n.x(), n.y(), n.z());
+        if(!its.mesh->getBSDF()->isDiffuse()) {
+            if(drand48() > 0.95)
+                return Color3f(0.f);
+            else {
+                BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
+                its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
+                return bsdfQ.eta * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
+            }
+        }
+
+        //preprocessing for caculation
+        Mesh* randomLight = lights.at(m_light_pdf.sample(drand48()));
+        Point3f lightSamplePosition;
+        Normal3f lightSampleNormal;
+        randomLight->sample(sampler, lightSamplePosition, lightSampleNormal);
+        Emitter* emit = randomLight->getEmitter();
+        Vector3f distanceVec = lightSamplePosition - its.p;
+        Color3f directEmit = Color3f(0);
+
+        //for calculatin G(x<->y)
+        float distance = distanceVec.dot(distanceVec);
+        distanceVec.normalize();
+        float objectNormal = abs(its.shFrame.n.dot(distanceVec));
+        float lightNormal = abs(lightSampleNormal.dot(-distanceVec));
+        Ray3f shadowRay = Ray3f(its.p, distanceVec);
+        
+        //check current its.p is emitter() then distnace -> infinite
+        if(its.mesh->isEmitter())
+            directEmit = emit->Le(lightSamplePosition, lightSampleNormal, shadowRay.d);
+        
+        //BRDF of given its.p material
+        BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d), its.toLocal(distanceVec), ESolidAngle);
+        Color3f bsdf = its.mesh->getBSDF()->eval(bsdfQ);
+        
+        //Pdf value for light (diffuse area light)
+        float lightPdf = 1.f/m_light_pdf.getSum();
+        
+        //MC integral
+        if(!emit->rayIntersect(scene, shadowRay)) {
+            return directEmit + Color3f(1.f/distance) * objectNormal * lightNormal * emit->Le(lightSamplePosition, lightSampleNormal, shadowRay.d) * bsdf * 1.f/lightPdf;
+        }
+        else {
+            return Color3f(0.f);
+        }
     }
     
     std::string toString() const {
-        return "NormalIntegrator[]";
+        return "WhittedIntegrator[]";
     }
+private:
+    std::vector<Mesh*> lights;
+    DiscretePDF m_light_pdf;
 };
 
 NORI_REGISTER_CLASS(WhittedIntegrator, "whitted");

@@ -43,7 +43,41 @@ public:
     }
 
     Color3f sample(BSDFQueryRecord &bRec, const Point2f &sample) const {
-        throw NoriException("Unimplemented!");
+        Vector3f reflected;
+        Vector3f refracted;
+        Vector3f normal = Vector3f(0,0,1);
+        Vector3f lightIn = -bRec.wi; lightIn.normalize();
+        float reflectivity = 0.01;
+        float ni = m_intIOR;
+        float np = m_extIOR;
+        float cosine;
+        
+        //When Light comes from inside
+        if(lightIn.dot(normal) > 0) {
+            normal = -normal;
+        }
+        else
+        {
+            std::swap(ni, np);
+        }
+        
+        reflectivity = fresnel(-lightIn.dot(normal), np, ni);
+        
+        reflectivity = (1-ni/np) / (1+ni/np);
+        reflectivity = reflectivity * reflectivity;
+        cosine = -lightIn.dot(normal);
+        reflectivity += (1-reflectivity) * pow((1-cosine),5);
+    
+        if(!refraction(lightIn, normal, ni/np, bRec.wo))
+            reflectivity = 1;
+        
+        if(sample[0] < reflectivity) {
+            reflection(lightIn, normal, bRec.wo);
+        }
+
+        bRec.eta = 1.f;
+    
+        return Color3f(1.f);
     }
 
     std::string toString() const {
