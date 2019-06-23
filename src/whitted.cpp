@@ -43,7 +43,7 @@ public:
             else {
                 BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
                 its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
-                return bsdfQ.eta * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
+                return 1.057 * bsdfQ.eta * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
             }
         }
 
