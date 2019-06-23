@@ -82,9 +82,7 @@ public:
         if(sample[0] < m_ks) {
             //specular case
             const Vector3f n = Warp::squareToBeckmann(Point2f(drand48(), drand48()), m_alpha);
-            Vector3f lightIn = -bRec.wi;
-            lightIn.normalize();
-            reflection(lightIn, n, bRec.wo);
+            reflection(-bRec.wi, n, bRec.wo);
         }
         else {
             bRec.wo = Warp::squareToCosineHemisphere(Point2f(drand48(), drand48()));
