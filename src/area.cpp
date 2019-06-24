@@ -22,8 +22,7 @@ public:
     }
     
     Color3f Le(const Point3f &p, const Normal3f &n, const Vector3f &w_o) const {
-        // return n.dot(w_o) > 0.f ? m_radiance : 0.f;
-        return m_radiance;
+        return n.dot(w_o) > 0.f ? m_radiance : 0.f;
     }
     
     bool rayIntersect(const Scene* scene, Ray3f &shadowRay, Intersection &its) const {

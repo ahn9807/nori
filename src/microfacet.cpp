@@ -83,15 +83,21 @@ public:
             //specular case
             const Vector3f n = Warp::squareToBeckmann(Point2f(drand48(), drand48()), m_alpha);
             reflection(-bRec.wi, n, bRec.wo);
+            bRec.measure = ESolidAngle;
         }
         else {
             bRec.wo = Warp::squareToCosineHemisphere(Point2f(drand48(), drand48()));
+            bRec.measure = ESolidAngle;
         }
         // Note: Once you have implemented the part that computes the scattered
         // direction, the last part of this function should simply return the
         // BRDF value divided by the solid angle density and multiplied by the
         // cosine factor from the reflection equation, i.e.
-        return eval(bRec) * Frame::cosTheta(bRec.wo) / pdf(bRec);
+        Color3f m_eval = eval(bRec);
+        if(m_eval.x() == 0 && m_eval.y() == 0 && m_eval.z() == 0)
+            return Color3f(0.f);
+        
+        return m_eval * Frame::cosTheta(bRec.wo) / pdf(bRec);
     }
     
     float G(Vector3f const a, Vector3f const b) const {
