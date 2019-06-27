@@ -66,7 +66,7 @@ Normal3f Mesh::getFaceNormalMean(uint32_t index) {
     Point3f p0, p1, p2;
     if(m_N.size() == 0) {
         p0 = m_V.col(i0); p1 = m_V.col(i1); p2 = m_V.col(i2);
-        normal = (p2 - p0).cross(p1 - p0);
+        normal = (p1 - p0).cross(p2 - p0);
         normal.normalize();
         return normal;
     }

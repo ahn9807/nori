@@ -18,7 +18,7 @@ public:
     }
     
     Color3f sample(Sampler *sampler) const {
-            return m_radiance;
+        return m_radiance;
     }
     
     Color3f Le(const Point3f &p, const Normal3f &n, const Vector3f &w_o) const {
@@ -29,7 +29,7 @@ public:
         if(!scene->rayIntersect(shadowRay, its)) {
             return false;
         }
-        if(its.mesh->isEmitter())
+        if(its.mesh->getEmitter() == this)
             return false;
         return true;
     }

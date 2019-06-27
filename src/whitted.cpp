@@ -32,7 +32,7 @@ public:
         m_light_pdf.normalize();
     }
     
-    Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray) const {
+    Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
         Intersection its;
         if (!scene->rayIntersect(ray, its))
             return Color3f(0.0f);
@@ -65,7 +65,7 @@ public:
         
         //check current its.p is emitter() then distnace -> infinite
         if(its.mesh->isEmitter())
-            directEmit = emit->Le(lightSamplePosition, lightSampleNormal, shadowRay.d);
+            directEmit = its.mesh->getEmitter()->Le(lightSamplePosition, lightSampleNormal, -ray.d);
         
         //BRDF of given its.p material
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d), its.toLocal(distanceVec), ESolidAngle);
@@ -76,7 +76,7 @@ public:
         
         //MC integral
         if(!emit->rayIntersect(scene, shadowRay)) {
-            return directEmit + Color3f(1.f/distance) * objectNormal * lightNormal * emit->Le(lightSamplePosition, lightSampleNormal, shadowRay.d) * bsdf * 1.f/lightPdf;
+            return directEmit + Color3f(1.f/distance) * objectNormal * lightNormal * emit->Le(lightSamplePosition, lightSampleNormal, -shadowRay.d) * bsdf * 1.f/lightPdf;
         }
         else {
             return Color3f(0.f);
