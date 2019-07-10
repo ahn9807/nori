@@ -65,6 +65,7 @@ add_executable(nori
   include/nori/vector.h
   include/nori/warp.h
   include/nori/octree.h
+  include/nori/denoiser.h
 
   # Source code files
   src/bitmap.cpp
@@ -98,6 +99,7 @@ add_executable(nori
   src/path_mats.cpp
   src/path_ems.cpp
   src/path_mis.cpp
+  src/denoiser.cpp
 )
 
 add_definitions(${NANOGUI_EXTRA_DEFS})

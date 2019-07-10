@@ -22,6 +22,7 @@
 #include <nori/sampler.h>
 #include <nori/camera.h>
 #include <nori/emitter.h>
+#include <nori/rfilter.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -87,6 +88,11 @@ void Scene::addChild(NoriObject *obj) {
             if (m_integrator)
                 throw NoriException("There can only be one integrator per scene!");
             m_integrator = static_cast<Integrator *>(obj);
+            break;
+        case EReconstructionFilter:
+            if(!m_camera)
+                throw NoriException("You muse implement the camera first!");
+            m_camera->setReconstructionFilter(static_cast<ReconstructionFilter *>(obj));
             break;
 
         default:

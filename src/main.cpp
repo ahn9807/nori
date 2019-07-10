@@ -28,11 +28,12 @@
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <filesystem/resolver.h>
+#include <nori/denoiser.h>
 #include <thread>
 
 using namespace nori;
 
-static void renderBlock(const Scene *scene, Sampler *sampler, ImageBlock &block) {
+static void renderBlock(const Scene *scene, Sampler *sampler, ImageBlock &block, Denoiser *denoiser) {
     const Camera *camera = scene->getCamera();
     const Integrator *integrator = scene->getIntegrator();
 
@@ -55,6 +56,7 @@ static void renderBlock(const Scene *scene, Sampler *sampler, ImageBlock &block)
 
                 /* Compute the incident radiance */
                 value *= integrator->Li(scene, sampler, ray);
+                denoiser->setVariance(x + offset.x(), y + offset.y(), value);
 
                 /* Store in the image block */
                 block.put(pixelSample, value);
@@ -67,6 +69,8 @@ static void render(Scene *scene, const std::string &filename) {
     const Camera *camera = scene->getCamera();
     Vector2i outputSize = camera->getOutputSize();
     scene->getIntegrator()->preprocess(scene);
+    Denoiser denoiser = Denoiser();
+    denoiser.initialize(outputSize.x(), outputSize.y(), scene->getSampler()->getSampleCount());
 
     /* Create a block generator (i.e. a work scheduler) */
     BlockGenerator blockGenerator(outputSize, NORI_BLOCK_SIZE);
@@ -104,7 +108,7 @@ static void render(Scene *scene, const std::string &filename) {
                 sampler->prepare(block);
 
                 /* Render all contained pixels */
-                renderBlock(scene, sampler.get(), block);
+                renderBlock(scene, sampler.get(), block, &denoiser);
 
                 /* The image block has been processed. Now add it to
                    the "big" block that represents the entire image */
@@ -132,11 +136,31 @@ static void render(Scene *scene, const std::string &filename) {
 
     /* Now turn the rendered image block into
        a properly normalized bitmap */
-    std::unique_ptr<Bitmap> bitmap(result.toBitmap());
-
+    Bitmap* bitmap(result.toBitmap());
+    Bitmap* denoiserBitmap;
+    
+    //setting for denoising
+    denoiser.setColor(bitmap);
+    denoiser.calculate();
+    denoiserBitmap = denoiser.getResult();
+    
     /* Determine the filename of the output bitmap */
     std::string outputName = filename;
     size_t lastdot = outputName.find_last_of(".");
+    if (lastdot != std::string::npos)
+        outputName.erase(lastdot, std::string::npos);
+    
+    std::string denoiserFileName = outputName + "denoiser";
+    
+    /* Save using the OpenEXR format */
+    denoiserBitmap->saveEXR(denoiserFileName);
+    
+    /* Save tonemapped (sRGB) output using the PNG format */
+    denoiserBitmap->savePNG(denoiserFileName);
+
+    /* Determine the filename of the output bitmap */
+    outputName = filename;
+    lastdot = outputName.find_last_of(".");
     if (lastdot != std::string::npos)
         outputName.erase(lastdot, std::string::npos);
 

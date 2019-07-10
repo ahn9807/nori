@@ -62,6 +62,9 @@ public:
 
     /// Return the camera's reconstruction filter in image space
     const ReconstructionFilter *getReconstructionFilter() const { return m_rfilter; }
+    
+    /// Set the camera's reconstruction filter in image space
+    void setReconstructionFilter(ReconstructionFilter *filter) { m_rfilter = filter; }
 
     /**
      * \brief Return the type of object (i.e. Mesh/Camera/etc.) 
