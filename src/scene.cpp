@@ -34,6 +34,9 @@ Scene::~Scene() {
     delete m_sampler;
     delete m_camera;
     delete m_integrator;
+    for(auto e : m_emitters)
+        delete e;
+    m_emitters.clear();
 }
 
 void Scene::activate() {
@@ -49,7 +52,7 @@ void Scene::activate() {
         m_sampler = static_cast<Sampler*>(
             NoriObjectFactory::createInstance("independent", PropertyList()));
     }
-
+    
     cout << endl;
     cout << "Configuration: " << toString() << endl;
     cout << endl;
@@ -61,13 +64,16 @@ void Scene::addChild(NoriObject *obj) {
                 Mesh *mesh = static_cast<Mesh *>(obj);
                 m_accel->addMesh(mesh);
                 m_meshes.push_back(mesh);
+                if(mesh->isEmitter())
+                    m_emitters.push_back(mesh->getEmitter());
             }
             break;
         
         case EEmitter: {
                 //Emitter *emitter = static_cast<Emitter *>(obj);
                 /* TBD */
-                throw NoriException("Scene::addChild(): You need to implement this for emitters");
+                Emitter *emitter = static_cast<Emitter *>(obj);
+                m_emitters.push_back(emitter);
             }
             break;
 
@@ -104,6 +110,14 @@ std::string Scene::toString() const {
             meshes += ",";
         meshes += "\n";
     }
+    
+    std::string lights;
+    for (size_t i=0; i<m_emitters.size(); ++i) {
+        lights += std::string("  ") + indent(m_emitters[i]->toString(), 2);
+        if (i + 1 < m_emitters.size())
+            lights += ",";
+        lights += "\n";
+    }
 
     return tfm::format(
         "Scene[\n"
@@ -112,11 +126,14 @@ std::string Scene::toString() const {
         "  camera = %s,\n"
         "  meshes = {\n"
         "  %s  }\n"
+        "  emitters = {\n"
+        "  %s  }\n"
         "]",
         indent(m_integrator->toString()),
         indent(m_sampler->toString()),
         indent(m_camera->toString()),
-        indent(meshes, 2)
+        indent(meshes, 2),
+        indent(lights,2)
     );
 }
 

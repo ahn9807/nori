@@ -1,8 +1,8 @@
 //
-//  area.cpp
+//  point.cpp
 //  Half
 //
-//  Created by Junho on 19/06/2019.
+//  Created by junho on 2019. 7. 16..
 //
 
 #include <nori/emitter.h>
@@ -11,38 +11,36 @@
 
 NORI_NAMESPACE_BEGIN
 
-class AreaLight : public Emitter {
+class PointLight : public Emitter {
 public:
-    AreaLight(const PropertyList &props) {
-        m_radiance = props.getColor("radiance",32);
+    PointLight(const PropertyList &props) {
+        m_radiance = props.getColor("radiance", 100);
+        m_position = props.getPoint("position", 0);
     }
     
     void setMesh(Mesh* mesh) {
-        m_mesh = mesh;
+        m_mesh = nullptr;
     }
     
     Color3f sample(EmitterQueryRecord &eqr, Sampler *sample) {
-        m_mesh->sample(sample, eqr.pos, eqr.normal);
-        eqr.wi = eqr.pos - eqr.ref;
-        m_pdf = m_mesh->getTotalSurfaceArea();
-        return Le(eqr) * m_pdf;
+        eqr.pos = m_position;
+        m_pdf = 0.f;
+        return m_radiance;
     }
     
     float pdf(const EmitterQueryRecord &eqr) {
-        m_pdf = m_mesh->getTotalSurfaceArea();
-        return 1.f/m_pdf;
+        return 0.f;
     }
     
     Color3f Le(const EmitterQueryRecord &eqr) const {
-        return  -eqr.wi.dot(eqr.normal) > 0.f ? m_radiance : 0.f;
+        return m_radiance;
     }
     
     bool rayIntersect(const Scene* scene, Ray3f &shadowRay, Intersection &its) const {
         if(!scene->rayIntersect(shadowRay, its)) {
             return false;
         }
-        if(its.mesh->getEmitter() == this)
-            return false;
+
         return true;
     }
     bool rayIntersect(const Scene* scene, Ray3f &shadowRay) const {
@@ -51,19 +49,20 @@ public:
     }
     
     bool isDeltaLight() const {
-        return false;
+        return true;
     }
     
     std::string toString() const {
-        return "AreaLight[]";
+        return "PointLight[]";
     }
     
 private:
     Color3f m_radiance;
+    Point3f m_position;
     float m_pdf;
     Mesh* m_mesh;
 };
 
 
-NORI_REGISTER_CLASS(AreaLight, "area");
+NORI_REGISTER_CLASS(PointLight, "point");
 NORI_NAMESPACE_END

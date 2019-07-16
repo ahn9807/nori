@@ -23,14 +23,42 @@
 
 NORI_NAMESPACE_BEGIN
 
+struct EmitterQueryRecord {
+    /// Incident direction (in the local frame)
+    Vector3f wi;
+    
+    /// Position for Light Sample
+    Point3f pos;
+    
+    /// Positino for source
+    Point3f ref;
+    
+    /// Normal for that light sample position
+    Normal3f normal;
+    
+    /// Measure associated with the sample
+    EMeasure measure;
+    
+    EmitterQueryRecord(const Point3f &ref)
+    : ref(ref), measure(EUnknownMeasure) { }
+    
+    EmitterQueryRecord(const Point3f &ref, const Normal3f &normal, const Vector3f &wi)
+    : ref(ref), normal(normal), wi(wi), measure(EUnknownMeasure) { }
+
+
+};
 /**
  * \brief Superclass of all emitters
  */
 class Emitter : public NoriObject {
 public:
-    virtual Color3f sample(Sampler *sampler) const = 0;
+    virtual void setMesh(Mesh* mesh) = 0;
     
-    virtual Color3f Le(const Point3f &p, const Normal3f &n, const Vector3f &w_o) const = 0;
+    virtual Color3f sample(EmitterQueryRecord &eqr, Sampler *sampler) = 0;
+    
+    virtual float pdf(const EmitterQueryRecord &eqr) = 0;
+    
+    virtual Color3f Le(const EmitterQueryRecord &eqr) const = 0;
     
     virtual bool rayIntersect(const Scene* scene, Ray3f &shadowRay, Intersection &its) const = 0;
     
@@ -43,6 +71,9 @@ public:
      * */
     
     EClassType getClassType() const { return EEmitter; }
+    
+protected:
+
 };
 
 NORI_NAMESPACE_END

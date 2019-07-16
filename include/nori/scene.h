@@ -54,6 +54,14 @@ public:
 
     /// Return a pointer to the scene's sample generator
     Sampler *getSampler() { return m_sampler; }
+    
+    Emitter *getRandomEmitter(Sampler *sample) const {
+        return m_emitters.at((int)(drand48() * m_emitters.size()));
+    }
+    
+    float getEmitterPdf() const {
+        return 1.f/m_emitters.size();
+    }
 
     /// Return a reference to an array containing all meshes
     const std::vector<Mesh *> &getMeshes() const { return m_meshes; }
@@ -122,6 +130,7 @@ private:
     Sampler *m_sampler = nullptr;
     Camera *m_camera = nullptr;
     Accel *m_accel = nullptr;
+    std::vector<Emitter *> m_emitters;
 };
 
 NORI_NAMESPACE_END

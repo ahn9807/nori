@@ -157,6 +157,7 @@ void Mesh::addChild(NoriObject *obj) {
                     throw NoriException(
                         "Mesh: tried to register multiple Emitter instances!");
                 m_emitter = emitter;
+                m_emitter->setMesh(this);
             }
             break;
 

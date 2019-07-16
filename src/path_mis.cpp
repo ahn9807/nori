@@ -20,16 +20,7 @@ public:
     }
     
     void preprocess(const Scene *scene) {
-        for(auto object:scene->getMeshes()) {
-            if(object->isEmitter())
-                lights.push_back(object);
-        }
-        
-        m_light_pdf = DiscretePDF(lights.size());
-        for(auto object:lights) {
-            m_light_pdf.append(object->getTotalSurfaceArea());
-        }
-        m_light_pdf.normalize();
+
     }
     
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
@@ -56,25 +47,23 @@ public:
             return Color3f(0.0f);
         
         //preprocessing for caculation
-        Mesh* randomLight = lights.at((int)(drand48() * lights.size()));
-        Point3f lightSamplePosition;
-        Normal3f lightSampleNormal;
-        randomLight->sample(sampler, lightSamplePosition, lightSampleNormal);
-        Emitter* emit = randomLight->getEmitter();
-        Vector3f distanceVec = lightSamplePosition - its.p;
+        Emitter* emit = scene->getRandomEmitter(sampler);
+        EmitterQueryRecord eqr = EmitterQueryRecord(its.p);
+        Color3f Le = emit->sample(eqr, sampler);
+        Vector3f distanceVec = eqr.pos - its.p;
         Color3f directColor = Color3f(0.f);
         
         //for calculatin G(x<->y)
         float distance = distanceVec.dot(distanceVec);
         distanceVec.normalize();
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
-        float lightNormal = abs(lightSampleNormal.dot(-distanceVec));
+        float lightNormal = abs(eqr.normal.dot(-distanceVec));
         Ray3f shadowRay = Ray3f(its.p, distanceVec);
         
         //check current its.p is emitter() then distnace -> infinite
         if(its.mesh->isEmitter()) {
             if(depth == 0)
-                return its.mesh->getEmitter()->Le(its.p, its.shFrame.n, -ray.d);
+                return Le;
             else
                 return Color3f(0.f);
         }
@@ -84,17 +73,17 @@ public:
         Color3f bsdf = its.mesh->getBSDF()->eval(bsdfQ);
         
         //Pdf value for light (diffuse area light)
-        float lightPdf = 1.f/lights.size() * 1.f/randomLight->getTotalSurfaceArea();
+        float lightPdf = scene->getEmitterPdf();
         
         //Weighting
-        float modifiedLightPdf = lightPdf * distance;
+        float modifiedLightPdf = lightPdf * distance * emit->pdf(eqr);
         float bsdfPdf = its.mesh->getBSDF()->pdf(bsdfQ);
         float weight = modifiedLightPdf/(modifiedLightPdf+ bsdfPdf);
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
         
         //MC integral
         if(!emit->rayIntersect(scene, shadowRay)) {
-            directColor = Color3f(1.f/distance) * objectNormal * lightNormal * emit->Le(lightSamplePosition, lightSampleNormal, -shadowRay.d) * bsdf * 1.f/lightPdf;
+            directColor = Color3f(1.f/distance) * objectNormal * lightNormal * Le * bsdf * 1.f/lightPdf;
         }
         
         return weight * 1.f/0.99 * (directColor + albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
@@ -110,7 +99,8 @@ public:
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
         Color3f light = Color3f(0.f);
         if(its.mesh->isEmitter()) {
-            light = its.mesh->getEmitter()->Le(its.p, its.shFrame.n, its.toWorld(bsdfQ.wo));
+            EmitterQueryRecord erq = EmitterQueryRecord(its.p, its.shFrame.n, -its.toWorld(bsdfQ.wo));
+            light = its.mesh->getEmitter()->Le(erq);
         }
         
         //Weighting
@@ -118,7 +108,7 @@ public:
         Intersection lightInsect;
         if(scene->rayIntersect(Ray3f(its.p, its.toWorld((bsdfQ.wo))), lightInsect)) {
             if(lightInsect.mesh->isEmitter()) {
-                lightPdf = 1.f/lights.size() * 1.f/lightInsect.mesh->getTotalSurfaceArea();
+                lightPdf = scene->getEmitterPdf() * 1.f/lightInsect.mesh->getTotalSurfaceArea();
                 Vector3f distanceVec = lightInsect.p - its.p;
                 float distance = distanceVec.dot(distanceVec);
                 lightPdf *= distance;
@@ -143,8 +133,6 @@ public:
         return "PathEmsIntegrator[]";
     }
 private:
-    std::vector<Mesh*> lights;
-    DiscretePDF m_light_pdf;
 };
 
 NORI_REGISTER_CLASS(PathMisIntegrator, "path_mis");
