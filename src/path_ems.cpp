@@ -50,6 +50,8 @@ public:
         distanceVec.normalize();
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
         float lightNormal = abs(eqr.normal.dot(-distanceVec));
+        if(emit->isDeltaLight())
+            lightNormal = 1;
         Ray3f shadowRay = Ray3f(its.p, distanceVec);
         
         //check current its.p is emitter() then distnace -> infinite
@@ -76,7 +78,10 @@ public:
             directColor = Color3f(0.f);
         }
         
-        return 1.f/0.99 * (directColor + albedo * Li(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))),depth + 1));
+        if(drand48() < 0.95)
+            return 1.f/0.95 * (directColor + albedo * Li(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))),depth + 1));
+        else
+            return Color3f(0.f);
     }
     
     std::string toString() const {

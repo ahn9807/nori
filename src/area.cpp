@@ -43,6 +43,7 @@ public:
         }
         if(its.mesh->getEmitter() == this)
             return false;
+        
         return true;
     }
     bool rayIntersect(const Scene* scene, Ray3f &shadowRay) const {

@@ -50,6 +50,8 @@ public:
         distanceVec.normalize();
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
         float lightNormal = abs(eqr.normal.dot(-distanceVec));
+        if(emit->isDeltaLight())
+            lightNormal = 1;
         Ray3f shadowRay = Ray3f(its.p, distanceVec);
         
         //check current its.p is emitter() then distnace -> infinite

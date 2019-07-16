@@ -13,16 +13,7 @@ public:
     }
     
     void preprocess(const Scene *scene) {
-        for(auto object:scene->getMeshes()) {
-            if(object->isEmitter())
-                lights.push_back(object);
-        }
-        
-        m_light_pdf = DiscretePDF(lights.size());
-        for(auto object:lights) {
-            m_light_pdf.append(object->getTotalSurfaceArea());
-        }
-        m_light_pdf.normalize();
+
     }
     
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
@@ -50,8 +41,7 @@ public:
         return "WhittedIntegrator[]";
     }
 private:
-    std::vector<Mesh*> lights;
-    DiscretePDF m_light_pdf;
+
 };
 
 NORI_REGISTER_CLASS(PathBruteIntegrator, "path_mats");

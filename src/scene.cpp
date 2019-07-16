@@ -52,6 +52,10 @@ void Scene::activate() {
         m_sampler = static_cast<Sampler*>(
             NoriObjectFactory::createInstance("independent", PropertyList()));
     }
+    if(m_emitters.size() == 0) {
+        Emitter *emitter = static_cast<Emitter *>(NoriObjectFactory::createInstance("point", PropertyList()));
+        m_emitters.push_back(emitter);
+    }
     
     cout << endl;
     cout << "Configuration: " << toString() << endl;

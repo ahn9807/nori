@@ -14,7 +14,7 @@ NORI_NAMESPACE_BEGIN
 class PointLight : public Emitter {
 public:
     PointLight(const PropertyList &props) {
-        m_radiance = props.getColor("radiance", 100);
+        m_radiance = props.getColor("radiance", 10);
         m_position = props.getPoint("position", 0);
     }
     
@@ -24,12 +24,12 @@ public:
     
     Color3f sample(EmitterQueryRecord &eqr, Sampler *sample) {
         eqr.pos = m_position;
-        m_pdf = 0.f;
+        m_pdf = 1.f;
         return m_radiance;
     }
     
     float pdf(const EmitterQueryRecord &eqr) {
-        return 0.f;
+        return 1.f;
     }
     
     Color3f Le(const EmitterQueryRecord &eqr) const {
@@ -40,7 +40,9 @@ public:
         if(!scene->rayIntersect(shadowRay, its)) {
             return false;
         }
-
+        if(its.mesh->getEmitter() == this)
+            return false;
+        
         return true;
     }
     bool rayIntersect(const Scene* scene, Ray3f &shadowRay) const {

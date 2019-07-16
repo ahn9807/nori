@@ -58,6 +58,8 @@ public:
         distanceVec.normalize();
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
         float lightNormal = abs(eqr.normal.dot(-distanceVec));
+        if(emit->isDeltaLight())
+            lightNormal = 1;
         Ray3f shadowRay = Ray3f(its.p, distanceVec);
         
         //check current its.p is emitter() then distnace -> infinite
@@ -86,7 +88,10 @@ public:
             directColor = Color3f(1.f/distance) * objectNormal * lightNormal * Le * bsdf * 1.f/lightPdf;
         }
         
-        return weight * 1.f/0.99 * (directColor + albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
+        if(drand48() < 0.99f)
+            return weight * 1.f/0.99 * (directColor + albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
+        else
+            return Color3f(0.f);
     }
     
     Color3f SamplingBSDF(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
