@@ -3,7 +3,7 @@
 <scene>
 	<!-- Independent sample generator, 128 samples per pixel -->
 	<sampler type="independent">
-		<integer name="sampleCount" value="256"/>
+		<integer name="sampleCount" value="32"/>
 	</sampler>
 
 	<!-- Use the path tracer without multiple importance sampling -->

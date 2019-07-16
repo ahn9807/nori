@@ -26,13 +26,13 @@ public:
     void setGamma(float gamma) {    this->gamma = gamma;    }
     void calculate();
     void setVariance(int x, int y, Color3f value);
-    void getVarianceFinal();
     Bitmap* getResult();
 private:
     float eval(int x, int y, float stddev, float radius) const ;
     Color3f pushToFilter(int x, int y, int step = -1);
     int calculateMSE(int x, int y, int step);
     void filterSelection();
+    void getVarianceFinal();
     
     Bitmap *input;
     Bitmap *result;

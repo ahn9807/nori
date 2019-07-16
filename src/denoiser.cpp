@@ -44,6 +44,8 @@ void Denoiser::initialize(int imageWidht, int imageHeight, int sampleCount) {
 }
 
 void Denoiser::calculate() {
+    std::cout<<"Start Adaptive Denoising... "<<endl;
+    
     clock_t start, end;
     start = clock();
     //initailizing the filters
@@ -54,6 +56,7 @@ void Denoiser::calculate() {
     
     getVarianceFinal();
     
+    printf("    [gamma %.2f]\n", gamma);
     for(int i=0;i<DENOISER_FILTER_NUM;i++) {
         float* temp = new float[DENOISER_FILTER_SIZE * DENOISER_FILTER_SIZE];
         float tempPdf = 0;
@@ -63,18 +66,13 @@ void Denoiser::calculate() {
                 float value = eval(x - DENOISER_FILTER_SIZE/2, y - DENOISER_FILTER_SIZE/2, stddev, DENOISER_FILTER_SIZE/2);
                 temp[x + y*DENOISER_FILTER_SIZE] = value;
                 tempPdf += value;
-                printf("%f ", value);
             }
-            printf("\n");
         }
-        printf("[filter %d] --standard deviation %f--\n", i + 1, stddev);
+        printf("    [filter %d] --standard deviation %f--\n", i + 1, stddev);
+        
         filters->push_back(temp);
         filterPdfs->push_back(tempPdf);
     }
-    
-    std::cout<<"Start Adaptive Denoising... "<<endl;
-    std::string filterPath = "denoiserData.ppm";
-    std::ofstream out(filterPath);
     
     for(int y=0;y<size.y();y++) {
         for(int x=0;x<size.x();x++) {
@@ -83,6 +81,9 @@ void Denoiser::calculate() {
     }
     
     filterSelection();
+    
+    std::string filterPath = "denoiserData.ppm";
+    std::ofstream out(filterPath);
     
     out<< "P3\n" << size.x() << " " << size.y() << "\n255\n";
     for(int y=0;y<size.y();y++) {
