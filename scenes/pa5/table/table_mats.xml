@@ -24,6 +24,11 @@
 		<integer name="width" value="800"/>
 		<integer name="height" value="600"/>
 	</camera>
+    
+    <!-- Environment Mapping -->
+    <emitter type="environment">
+        <string name="path" value="glacier.exr"/>
+    </emitter>
 
 	<!-- Two light sources  -->
 	<mesh type="obj">

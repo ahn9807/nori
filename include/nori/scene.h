@@ -59,6 +59,10 @@ public:
         return m_emitters.at((int)(drand48() * m_emitters.size()));
     }
     
+    Emitter *getEnvmentLight() const {
+        return m_envlight;
+    }
+    
     float getEmitterPdf() const {
         return 1.f/m_emitters.size();
     }
@@ -131,6 +135,7 @@ private:
     Camera *m_camera = nullptr;
     Accel *m_accel = nullptr;
     std::vector<Emitter *> m_emitters;
+    Emitter *m_envlight;
 };
 
 NORI_NAMESPACE_END

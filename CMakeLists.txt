@@ -65,6 +65,7 @@ add_executable(nori
   include/nori/vector.h
   include/nori/warp.h
   include/nori/octree.h
+  include/nori/envmap.h
 
   # Source code files
   src/bitmap.cpp
@@ -99,6 +100,8 @@ add_executable(nori
   src/path_ems.cpp
   src/path_mis.cpp
   src/point.cpp
+  src/infinite.cpp
+  src/envmap.cpp
 )
 
 add_definitions(${NANOGUI_EXTRA_DEFS})

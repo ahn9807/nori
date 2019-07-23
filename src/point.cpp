@@ -14,8 +14,8 @@ NORI_NAMESPACE_BEGIN
 class PointLight : public Emitter {
 public:
     PointLight(const PropertyList &props) {
-        m_radiance = props.getColor("radiance", 10);
-        m_position = props.getPoint("position", 0);
+        m_radiance = props.getColor("radiance", 0.2);
+        m_position = props.getPoint("position", 10);
     }
     
     void setMesh(Mesh* mesh) {
@@ -24,8 +24,21 @@ public:
     
     Color3f sample(EmitterQueryRecord &eqr, Sampler *sample) {
         eqr.pos = m_position;
+        eqr.wi = eqr.pos - eqr.ref;
+        eqr.shadowRay = Ray3f(eqr.ref, eqr.wi);
+        
+        //preprocessing for caculation
+        Vector3f distanceVec = eqr.pos - eqr.ref;
+        Color3f directColor = Color3f(0.f);
+        
+        //for calculatin G(x<->y)
+        float distance = distanceVec.dot(distanceVec);
+        distanceVec.normalize();
+        
+        directColor = Color3f(1.f/distance) * 1 * Le(eqr);
+        
         m_pdf = 1.f;
-        return m_radiance;
+        return Le(eqr) * m_pdf;
     }
     
     float pdf(const EmitterQueryRecord &eqr) {

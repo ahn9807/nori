@@ -3,6 +3,10 @@
 <scene>
 	<integrator type="path_ems"/>
 
+	<emitter type="environment">
+		<string name="path" value="glacier.exr"/>
+	</emitter>
+
 	<camera type="perspective">
 		<float name="fov" value="27.7856"/>
 		<transform name="toWorld">
@@ -15,7 +19,7 @@
 	</camera>
 
 	<sampler type="independent">
-		<integer name="sampleCount" value="512"/>
+		<integer name="sampleCount" value="128"/>
 	</sampler>
 
 	<mesh type="obj">

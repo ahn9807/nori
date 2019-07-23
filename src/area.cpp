@@ -24,8 +24,18 @@ public:
     Color3f sample(EmitterQueryRecord &eqr, Sampler *sample) {
         m_mesh->sample(sample, eqr.pos, eqr.normal);
         eqr.wi = eqr.pos - eqr.ref;
+        eqr.shadowRay = Ray3f(eqr.ref, eqr.wi);
+        
+        //preprocessing for caculation
+        Color3f directColor = Color3f(0.f);
+        
+        //for calculatin G(x<->y)
+        float distance = eqr.wi.dot(eqr.wi);
+        
+        directColor = Color3f(1.f/distance) * eqr.normal.dot(-eqr.wi.normalized()) * Le(eqr);
+        
         m_pdf = m_mesh->getTotalSurfaceArea();
-        return Le(eqr) * m_pdf;
+        return directColor * m_pdf;
     }
     
     float pdf(const EmitterQueryRecord &eqr) {

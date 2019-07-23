@@ -135,7 +135,7 @@ public:
 
     
     std::string toString() const {
-        return "PathEmsIntegrator[]";
+        return "MisIntegrator[]";
     }
 private:
 };

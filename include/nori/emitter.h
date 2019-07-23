@@ -36,11 +36,17 @@ struct EmitterQueryRecord {
     /// Normal for that light sample position
     Normal3f normal;
     
+    ///Ray
+    Ray3f shadowRay;
+    
     /// Measure associated with the sample
     EMeasure measure;
     
     EmitterQueryRecord(const Point3f &ref)
     : ref(ref), measure(EUnknownMeasure) { }
+    
+    EmitterQueryRecord(const Point3f &ref, const Vector3f &wi)
+    : ref(ref), wi(wi), measure(EUnknownMeasure) { }
     
     EmitterQueryRecord(const Point3f &ref, const Normal3f &normal, const Vector3f &wi)
     : ref(ref), normal(normal), wi(wi), measure(EUnknownMeasure) { }

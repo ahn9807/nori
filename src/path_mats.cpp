@@ -18,8 +18,14 @@ public:
     
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
         Intersection its;
-        if (!scene->rayIntersect(ray, its))
-            return Color3f(0.0f);
+        if (!scene->rayIntersect(ray, its)) {
+            if (scene->getEnvmentLight() != nullptr) {
+                EmitterQueryRecord eqr = EmitterQueryRecord(ray.o, ray.d);
+                return scene->getEnvmentLight()->Le(eqr);
+            }
+            
+            return 0.f;
+        }
         
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
@@ -38,7 +44,7 @@ public:
     }
     
     std::string toString() const {
-        return "WhittedIntegrator[]";
+        return "MatIntegrator[]";
     }
 private:
 

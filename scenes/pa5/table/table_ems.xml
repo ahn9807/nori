@@ -6,6 +6,7 @@
 		<integer name="sampleCount" value="128"/>
 	</sampler>
 
+
 	<!-- Use the path tracer without multiple importance sampling -->
     <integrator type="path_ems"/>
 
