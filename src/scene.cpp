@@ -38,6 +38,7 @@ Scene::~Scene() {
     for(auto e : m_emitters)
         delete e;
     m_emitters.clear();
+    m_envlight = nullptr;
 }
 
 void Scene::activate() {

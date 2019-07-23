@@ -43,24 +43,35 @@ public:
     
     Color3f SamplingLight(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
         Intersection its;
-        if (!scene->rayIntersect(ray, its))
-            return Color3f(0.0f);
+        if (!scene->rayIntersect(ray, its)) {
+            if (scene->getEnvmentLight() != nullptr) {
+                EmitterQueryRecord eqr = EmitterQueryRecord(ray.o, ray.d);
+                return scene->getEnvmentLight()->Le(eqr);
+            }
+            
+            return 0.f;
+        }
+        
+        if(!its.mesh->getBSDF()->isDiffuse()) {
+            if(drand48() > 0.95)
+                return Color3f(0.f);
+            else {
+                BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
+                its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
+                return 1.057 * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
+            }
+        }
         
         //preprocessing for caculation
         Emitter* emit = scene->getRandomEmitter(sampler);
         EmitterQueryRecord eqr = EmitterQueryRecord(its.p);
         Color3f Le = emit->sample(eqr, sampler);
-        Vector3f distanceVec = eqr.pos - its.p;
-        Color3f directColor = Color3f(0.f);
+        Vector3f distanceVec = eqr.pos - eqr.ref;
+        float distance = distanceVec.dot(distanceVec);
+        Color3f directColor;
         
         //for calculatin G(x<->y)
-        float distance = distanceVec.dot(distanceVec);
-        distanceVec.normalize();
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
-        float lightNormal = abs(eqr.normal.dot(-distanceVec));
-        if(emit->isDeltaLight())
-            lightNormal = 1;
-        Ray3f shadowRay = Ray3f(its.p, distanceVec);
         
         //check current its.p is emitter() then distnace -> infinite
         if(its.mesh->isEmitter()) {
@@ -84,8 +95,8 @@ public:
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
         
         //MC integral
-        if(!emit->rayIntersect(scene, shadowRay)) {
-            directColor = Color3f(1.f/distance) * objectNormal * lightNormal * Le * bsdf * 1.f/lightPdf;
+        if(!emit->rayIntersect(scene, eqr.shadowRay)) {
+            directColor = objectNormal * Le * bsdf * 1.f/lightPdf;
         }
         
         if(drand48() < 0.99f)
@@ -97,7 +108,12 @@ public:
     Color3f SamplingBSDF(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
         Intersection its;
         if (!scene->rayIntersect(ray, its)) {
-            return Color3f(0.0f);
+            if (scene->getEnvmentLight() != nullptr) {
+                EmitterQueryRecord eqr = EmitterQueryRecord(ray.o, ray.d);
+                return scene->getEnvmentLight()->Le(eqr);
+            }
+            
+            return 0.f;
         }
 
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
