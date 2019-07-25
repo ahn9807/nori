@@ -1,7 +1,6 @@
 NORI for hobby
 ======================================
-
-
+![Example](https://raw.githubusercontent.com/ahn9807/nori/master/images/tutorial2.jpg)
 ## Spec
 
 1. Mirror Dielectric Diffuse Microfacet
