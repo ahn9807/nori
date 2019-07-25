@@ -20,7 +20,7 @@ public:
     }
     
     void preprocess(const Scene *scene) {
-
+        
     }
     
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
@@ -107,7 +107,7 @@ public:
             
             return 0.f;
         }
-
+        
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
         bsdfQ.uv = its.uv;
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
@@ -147,7 +147,7 @@ public:
             return Color3f(0.f);
     }
     
-
+    
     
     std::string toString() const {
         return "MisIntegrator[]";
@@ -157,4 +157,3 @@ private:
 
 NORI_REGISTER_CLASS(PathMisIntegrator, "path_mis");
 NORI_NAMESPACE_END
-

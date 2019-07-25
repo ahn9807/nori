@@ -26,19 +26,8 @@ public:
         eqr.pos = m_position;
         eqr.wi = eqr.pos - eqr.ref;
         eqr.shadowRay = Ray3f(eqr.ref, eqr.wi);
-        
-        //preprocessing for caculation
-        Vector3f distanceVec = eqr.pos - eqr.ref;
-        Color3f directColor = Color3f(0.f);
-        
-        //for calculatin G(x<->y)
-        float distance = distanceVec.dot(distanceVec);
-        distanceVec.normalize();
-        
-        directColor = Color3f(1.f/distance) * 1 * Le(eqr);
-        
-        m_pdf = 1.f;
-        return Le(eqr) * m_pdf;
+
+        return m_radiance / 4 * M_PI * (eqr.ref - eqr.pos).squaredNorm();
     }
     
     float pdf(const EmitterQueryRecord &eqr) {
@@ -74,7 +63,6 @@ public:
 private:
     Color3f m_radiance;
     Point3f m_position;
-    float m_pdf;
     Mesh* m_mesh;
 };
 
