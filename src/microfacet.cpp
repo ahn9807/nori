@@ -16,6 +16,7 @@
     along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <nori/texture.h>
 #include <nori/bsdf.h>
 #include <nori/frame.h>
 #include <nori/warp.h>
@@ -47,6 +48,7 @@ public:
            of this BRDF. */
         m_ks = 1 - m_kd.maxCoeff();
         
+        /*
         std::string textureAlbedo = propList.getString("texture_albedo", "none");
         if(textureAlbedo != "none") {
             m_texture_albedo = new Texture(textureAlbedo);
@@ -54,7 +56,18 @@ public:
         else {
             m_texture_albedo = nullptr;
         }
+         */
     }
+    
+    /*
+    Color3f getAlbedo(const BSDFQueryRecord &bRec) const {
+        if(m_texture_albedo != nullptr) {
+            return m_texture_albedo->lookUp(bRec.uv);
+        }
+        
+        return m_kd;
+    }
+     */
 
     /// Evaluate the BRDF for the given pair of directions
     Color3f eval(const BSDFQueryRecord &bRec) const {
@@ -71,7 +84,7 @@ public:
         float g = G(bRec.wi, wh) * G(bRec.wo, wh);
         float d = Warp::squareToBeckmannPdf(wh, m_alpha);
         
-        return getAlbedo(bRec) * INV_PI + m_ks * (d * f * g)/(4 * cosineI * cosineO * cosineH);
+        return m_kd * INV_PI + m_ks * (d * f * g)/(4 * cosineI * cosineO * cosineH);
     }
 
     /// Evaluate the sampling density of \ref sample() wrt. solid angles
@@ -129,14 +142,6 @@ public:
            handled by sampling techniques for diffuse/non-specular materials,
            hence we return true here */
         return true;
-    }
-    
-    Color3f getAlbedo(const BSDFQueryRecord &bRec) const {
-        if(m_texture_albedo != nullptr) {
-            return m_texture_albedo->lookUp(bRec.uv);
-        }
-        
-        return m_albedo;
     }
 
     std::string toString() const {

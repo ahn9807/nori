@@ -128,4 +128,34 @@ float Warp::squareToBeckmannPdf(const Vector3f &m, float alpha) {
     return azimuthal * longitudinal;
 }
 
+Vector3f Warp::squareToGTR1(const Point2f & sample, float alpha)
+{
+    float phi = 2 * M_PI * sample[0];
+    float theta = 0;
+    if (alpha < 1)
+        theta = acos(sqrt((1 - pow(pow(alpha, 2), 1 - sample[1])) / (1 - pow(alpha, 2))));
+    return Vector3f(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+}
+
+float Warp::squareToGTR1Pdf(const Vector3f & m, float alpha)
+{
+    float cosTheta = m.z() / m.norm();
+    if (alpha >= 1)
+        return INV_PI;
+    return (abs(m.norm() - 1) < Epsilon && m.z() >= 0) * cosTheta * (pow(alpha, 2) - 1)*INV_PI/(2*std::log(alpha) * (1 + pow(cosTheta, 2) * (pow(alpha, 2) - 1)));
+}
+
+Vector3f Warp::squareToGTR2(const Point2f & sample, float alpha)
+{
+    float phi = 2 * M_PI * sample[0];
+    float theta = acos(sqrt((1 - sample[1]) / (1 + (pow(alpha, 2) - 1) * sample[1])));
+    return Vector3f(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+}
+
+float Warp::squareToGTR2Pdf(const Vector3f & m, float alpha)
+{
+    float cosTheta = m.z() / m.norm();
+    return (abs(m.norm() - 1) < Epsilon && m.z() >= 0) * pow(alpha, 2) * cosTheta * INV_PI / pow(1 + pow(cosTheta, 2) * (pow(alpha, 2) - 1), 2);
+}
+
 NORI_NAMESPACE_END

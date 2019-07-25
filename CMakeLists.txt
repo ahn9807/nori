@@ -67,6 +67,7 @@ add_executable(nori
   include/nori/octree.h
   include/nori/envmap.h
   include/nori/texture.h
+  include/nori/medium.h
 
   # Source code files
   src/bitmap.cpp
@@ -104,6 +105,9 @@ add_executable(nori
   src/infinite.cpp
   src/envmap.cpp
   src/texture.cpp
+  src/homogeneous.cpp
+  src/path_vol.cpp
+  src/disney.cpp
 )
 
 add_definitions(${NANOGUI_EXTRA_DEFS})

@@ -105,6 +105,9 @@ void Scene::addChild(NoriObject *obj) {
             m_integrator = static_cast<Integrator *>(obj);
             break;
             
+        case EMedium:
+            
+            
         default:
             throw NoriException("Scene::addChild(<%s>) is not supported!",
                                 classTypeName(obj->getClassType()));
