@@ -16,6 +16,6 @@ NORI for hobby
 
 
 ## Memo
-1. Environment Light is copied from bieperre
+1. Environment Light, disney BRDF is copied from bieperre.
 2. Texture mapping now behaviour stangely => need to fix.
 
