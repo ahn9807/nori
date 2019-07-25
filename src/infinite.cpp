@@ -35,7 +35,7 @@ public:
         Color3f col = m_envmap.sample(lRec.wi, sampler);
         lRec.shadowRay = Ray3f(lRec.ref, lRec.wi);
         lRec.shadowRay = Ray3f(lRec.ref, lRec.wi, Epsilon, 10000);
-        return m_envmap.eval(lRec.wi);
+        return col;
     }
     
     float pdf(const EmitterQueryRecord &lRec) {

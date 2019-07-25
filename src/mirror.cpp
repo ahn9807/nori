@@ -18,13 +18,23 @@
 
 #include <nori/bsdf.h>
 #include <nori/frame.h>
+#include <nori/texture.h>
 
 NORI_NAMESPACE_BEGIN
 
 /// Ideal mirror BRDF
 class Mirror : public BSDF {
 public:
-    Mirror(const PropertyList &) { }
+    Mirror(const PropertyList &props) {
+        m_albedo = props.getColor("albedo",1);
+        std::string textureAlbedo = props.getString("texture_albedo", "none");
+        if(textureAlbedo != "none") {
+            m_texture_albedo = new Texture(textureAlbedo);
+        }
+        else {
+            m_texture_albedo = nullptr;
+        }
+    }
 
     Color3f eval(const BSDFQueryRecord &) const {
         /* Discrete BRDFs always evaluate to zero in Nori */
@@ -50,13 +60,25 @@ public:
 
         /* Relative index of refraction: no change */
         bRec.eta = 1.0f;
-
-        return Color3f(1.0f);
+        
+        /*
+        if(m_texture_albedo != nullptr) {
+            return m_texture_albedo->lookUp(bRec.uv);
+        }
+         */
+        
+        return m_albedo;
     }
 
     std::string toString() const {
-        return "Mirror[]";
+        return tfm::format(
+                           "Mirro[\n"
+                           "  albedo = %s\n"
+                           "]", m_albedo.toString());
     }
+private:
+    Color3f m_albedo;
+    Texture *m_texture_albedo;
 };
 
 NORI_REGISTER_CLASS(Mirror, "mirror");

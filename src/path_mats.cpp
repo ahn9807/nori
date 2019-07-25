@@ -28,7 +28,9 @@ public:
         }
         
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
+        bsdfQ.uv = its.uv;
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
+        
         Color3f light = Color3f(0.f);
         if(its.mesh->isEmitter()) {
             EmitterQueryRecord erq = EmitterQueryRecord(its.p, its.shFrame.n, -its.toWorld(bsdfQ.wo));

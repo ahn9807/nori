@@ -24,20 +24,6 @@ public:
     }
     
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
-        Intersection its;
-        if (!scene->rayIntersect(ray, its))
-            return Color3f(0.0f);
-        
-        if(!its.mesh->getBSDF()->isDiffuse()) {
-            if(drand48() > 0.95)
-                return Color3f(0.f);
-            else {
-                BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
-                its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
-                return 1.057 * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
-            }
-        }
-        
         return SamplingLight(scene, sampler, ray) + SamplingBSDF(scene, sampler, ray);
     }
     
@@ -57,8 +43,8 @@ public:
                 return Color3f(0.f);
             else {
                 BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
-                its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
-                return 1.057 * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
+                Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
+                return 1.057 * albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
             }
         }
         
@@ -66,9 +52,8 @@ public:
         Emitter* emit = scene->getRandomEmitter(sampler);
         EmitterQueryRecord eqr = EmitterQueryRecord(its.p);
         Color3f Le = emit->sample(eqr, sampler);
-        Vector3f distanceVec = eqr.pos - eqr.ref;
-        float distance = distanceVec.dot(distanceVec);
-        Color3f directColor;
+        Vector3f distanceVec = eqr.wi.normalized();
+        Color3f directColor = Color3f(0.f);
         
         //for calculatin G(x<->y)
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
@@ -76,31 +61,38 @@ public:
         //check current its.p is emitter() then distnace -> infinite
         if(its.mesh->isEmitter()) {
             if(depth == 0)
-                return Le;
+                return its.mesh->getEmitter()->Le(eqr);
             else
                 return Color3f(0.f);
         }
         
         //BRDF of given its.p material
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d), its.toLocal(distanceVec), ESolidAngle);
+        bsdfQ.uv = its.uv;
         Color3f bsdf = its.mesh->getBSDF()->eval(bsdfQ);
         
         //Pdf value for light (diffuse area light)
-        float lightPdf = scene->getEmitterPdf();
+        float lightPdf = scene->getEmitterPdf() * emit->pdf(eqr);
         
         //Weighting
-        float modifiedLightPdf = lightPdf * distance * emit->pdf(eqr);
+        float modifiedLightPdf = lightPdf;
+        if(emit != scene->getEnvmentLight()) {
+            float distance = eqr.wi.dot(eqr.wi);
+            modifiedLightPdf *= distance;
+        }
+        
         float bsdfPdf = its.mesh->getBSDF()->pdf(bsdfQ);
         float weight = modifiedLightPdf/(modifiedLightPdf+ bsdfPdf);
+        
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
         
         //MC integral
         if(!emit->rayIntersect(scene, eqr.shadowRay)) {
-            directColor = objectNormal * Le * bsdf * 1.f/lightPdf;
+            directColor = objectNormal * Le * bsdf * 1.f/scene->getEmitterPdf();
         }
         
-        if(drand48() < 0.99f)
-            return weight * 1.f/0.99 * (directColor + albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
+        if(drand48() < 0.95f)
+            return weight * 1.f/0.95 * (directColor + albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
         else
             return Color3f(0.f);
     }
@@ -117,6 +109,7 @@ public:
         }
 
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
+        bsdfQ.uv = its.uv;
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
         Color3f light = Color3f(0.f);
         if(its.mesh->isEmitter()) {
@@ -129,10 +122,16 @@ public:
         Intersection lightInsect;
         if(scene->rayIntersect(Ray3f(its.p, its.toWorld((bsdfQ.wo))), lightInsect)) {
             if(lightInsect.mesh->isEmitter()) {
-                lightPdf = scene->getEmitterPdf() * 1.f/lightInsect.mesh->getTotalSurfaceArea();
-                Vector3f distanceVec = lightInsect.p - its.p;
-                float distance = distanceVec.dot(distanceVec);
-                lightPdf *= distance;
+                EmitterQueryRecord eqr = EmitterQueryRecord(lightInsect.p);
+                if(lightInsect.mesh->getEmitter() == scene->getEnvmentLight()) {
+                    lightPdf = lightInsect.mesh->getEmitter()->pdf(eqr);
+                }
+                else {
+                    lightPdf = scene->getEmitterPdf() * lightInsect.mesh->getEmitter()->pdf(eqr);
+                    Vector3f distanceVec = lightInsect.p - its.p;
+                    float distance = distanceVec.dot(distanceVec);
+                    lightPdf *= distance;
+                }
             }
         }
         float bsdfPdf = its.mesh->getBSDF()->pdf(bsdfQ);

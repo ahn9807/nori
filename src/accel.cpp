@@ -459,8 +459,8 @@ bool Accel::rayIntersect(const Ray3f &_ray, Intersection &its, bool shadowRay) c
         
         /* Compute proper texture coordinates if provided by the mesh */
         if (UV.size() > 0)
-            its.uv = bary.x() * UV.col(idx0),
-            bary.y() * UV.col(idx1),
+            its.uv = bary.x() * UV.col(idx0) +
+            bary.y() * UV.col(idx1) +
             bary.z() * UV.col(idx2);
         
         /* Compute the geometry frame */

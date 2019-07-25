@@ -31,7 +31,7 @@ public:
                 return scene->getEnvmentLight()->Le(eqr);
             }
             
-            return 0.f;
+            return Color3f(0.f);
         }
         
         if(!its.mesh->getBSDF()->isDiffuse()) {
@@ -39,8 +39,8 @@ public:
                 return Color3f(0.f);
             else {
                 BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
-                its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
-                return 1.057 * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
+                Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
+                return 1.057 * albedo * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
             }
         }
         
@@ -48,8 +48,8 @@ public:
         Emitter* emit = scene->getRandomEmitter(sampler);
         EmitterQueryRecord eqr = EmitterQueryRecord(its.p);
         Color3f Le = emit->sample(eqr, sampler);
-        Vector3f distanceVec = eqr.pos - eqr.ref;
-        Color3f directColor;
+        Vector3f distanceVec = eqr.wi.normalized();
+        Color3f directColor = Color3f(0.f);
         
         //for calculatin G(x<->y)
         float objectNormal = abs(its.shFrame.n.dot(distanceVec));
@@ -64,6 +64,7 @@ public:
         
         //BRDF of given its.p material
         BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d), its.toLocal(distanceVec), ESolidAngle);
+        bsdfQ.uv = its.uv;
         Color3f bsdf = its.mesh->getBSDF()->eval(bsdfQ);
         Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
         

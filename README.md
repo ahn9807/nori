@@ -1,27 +1,20 @@
-Advanced Computer Graphics — Homeworks
+NORI for hobby
 ======================================
 
-Student name:
 
-Sciper number:
+## Spec
 
-
-## Build status
-
-**Visit [Travis CI](https://travis-ci.com) to get the build badge for your repository.**
+1. Mirror Dielectric Diffuse Microfacet
+2. Adaptive denoising based on Gaussian kernel
+3. Area Point Environment Light
 
 
-## Homework results
+## Todo
 
-| Homework   |  Links
-| ---------: | ---------------------------------------------
-| 1          | [report.html](results/homework-1/report.html)
-| 2          | [report.html](results/homework-2/report.html)
-| 3          | [report.html](results/homework-3/report.html)
-| 4          | [report.html](results/homework-4/report.html)
-| 5          | [report.html](results/homework-5/report.html)
+1. Volummetric Rendering
+2. Disney BRDF
+3. Texture
 
 
-## Featured result
-
-Feel free to show off your best render here!
+## Memo
+1. Environment Light is currently disable pdf 

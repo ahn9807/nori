@@ -144,7 +144,7 @@ public:
     Emitter *getEmitter() { return m_emitter; }
 
     /// Return a pointer to an attached area emitter instance (const version)
-    const Emitter *getEmitter() const { return m_emitter; }
+    Emitter *getEmitter() const { return m_emitter; }
 
     /// Return a pointer to the BSDF associated with this mesh
     const BSDF *getBSDF() const { return m_bsdf; }

@@ -30,6 +30,8 @@ public:
 
         /* Exterior IOR (default: air) */
         m_extIOR = propList.getFloat("extIOR", 1.000277f);
+        
+        m_albedo = propList.getColor("albedo",1);
     }
 
     Color3f eval(const BSDFQueryRecord &) const {
@@ -77,7 +79,7 @@ public:
 
         bRec.eta = 1.f;
     
-        return Color3f(1.f);
+        return m_albedo;
     }
 
     std::string toString() const {
@@ -85,11 +87,13 @@ public:
             "Dielectric[\n"
             "  intIOR = %f,\n"
             "  extIOR = %f\n"
+            "  albedo = %s\n"
             "]",
-            m_intIOR, m_extIOR);
+            m_intIOR, m_extIOR, m_albedo.toString());
     }
 private:
     float m_intIOR, m_extIOR;
+    Color3f m_albedo;
 };
 
 NORI_REGISTER_CLASS(Dielectric, "dielectric");

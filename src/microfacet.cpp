@@ -46,6 +46,14 @@ public:
            interested in implementing a more realistic version 
            of this BRDF. */
         m_ks = 1 - m_kd.maxCoeff();
+        
+        std::string textureAlbedo = propList.getString("texture_albedo", "none");
+        if(textureAlbedo != "none") {
+            m_texture_albedo = new Texture(textureAlbedo);
+        }
+        else {
+            m_texture_albedo = nullptr;
+        }
     }
 
     /// Evaluate the BRDF for the given pair of directions
@@ -63,7 +71,7 @@ public:
         float g = G(bRec.wi, wh) * G(bRec.wo, wh);
         float d = Warp::squareToBeckmannPdf(wh, m_alpha);
         
-        return m_kd * INV_PI + m_ks * (d * f * g)/(4 * cosineI * cosineO * cosineH);
+        return getAlbedo(bRec) * INV_PI + m_ks * (d * f * g)/(4 * cosineI * cosineO * cosineH);
     }
 
     /// Evaluate the sampling density of \ref sample() wrt. solid angles
@@ -122,6 +130,14 @@ public:
            hence we return true here */
         return true;
     }
+    
+    Color3f getAlbedo(const BSDFQueryRecord &bRec) const {
+        if(m_texture_albedo != nullptr) {
+            return m_texture_albedo->lookUp(bRec.uv);
+        }
+        
+        return m_albedo;
+    }
 
     std::string toString() const {
         return tfm::format(
@@ -144,6 +160,7 @@ private:
     float m_intIOR, m_extIOR;
     float m_ks;
     Color3f m_kd;
+    Texture *m_texture_albedo;
 };
 
 NORI_REGISTER_CLASS(Microfacet, "microfacet");
