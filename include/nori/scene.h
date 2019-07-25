@@ -136,6 +136,7 @@ private:
     Accel *m_accel = nullptr;
     std::vector<Emitter *> m_emitters;
     Emitter *m_envlight;
+    
 };
 
 NORI_NAMESPACE_END

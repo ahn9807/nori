@@ -14,8 +14,10 @@
 		<integer name="width" value="800"/>
 	</camera>
 
+	<rfilter type="gaussian"/>
+
 	<sampler type="independent">
-		<integer name="sampleCount" value="512"/>
+		<integer name="sampleCount" value="1"/>
 	</sampler>
 
 	<mesh type="obj">
