@@ -17,4 +17,6 @@ NORI for hobby
 
 
 ## Memo
-1. Environment Light is currently disable pdf 
+1. Environment Light is copied from bieperre
+2. Texture mapping now behaviour stangely => need to fix.
+
