@@ -1,4 +1,3 @@
-
 bl_info = {
     "name": "Export Nori scenes format",
     "author": "Adrien Gruson",

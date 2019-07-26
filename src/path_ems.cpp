@@ -39,6 +39,7 @@ public:
                 return Color3f(0.f);
             else {
                 BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
+                bsdfQ.uv = its.uv;
                 Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
                 return 1.057 * albedo * Li(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
             }

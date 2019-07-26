@@ -28,12 +28,10 @@ public:
     Mirror(const PropertyList &props) {
         m_albedo = props.getColor("albedo",1);
         std::string textureAlbedo = props.getString("texture_albedo", "none");
-        if(textureAlbedo != "none") {
-            m_texture_albedo = new Texture(textureAlbedo);
-        }
-        else {
-            m_texture_albedo = nullptr;
-        }
+        if(textureAlbedo != "none")
+            m_texture_albedo = new Texture(m_albedo, textureAlbedo);
+        else
+            m_texture_albedo = new Texture(m_albedo);
     }
 
     Color3f eval(const BSDFQueryRecord &) const {
@@ -67,7 +65,7 @@ public:
         }
          */
         
-        return m_albedo;
+        return m_texture_albedo->lookUp(bRec.uv);
     }
 
     std::string toString() const {

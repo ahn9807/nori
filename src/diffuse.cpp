@@ -32,10 +32,10 @@ public:
         m_albedo = propList.getColor("albedo", Color3f(0.5f));
         std::string textureAlbedo = propList.getString("texture_albedo", "none");
         if(textureAlbedo != "none") {
-            m_texture_albedo = new Texture(textureAlbedo);
+            m_texture_albedo = new Texture(m_albedo, textureAlbedo);
         }
         else {
-            m_texture_albedo = nullptr;
+            m_texture_albedo = new Texture(m_albedo);
         }
     }
 
@@ -49,7 +49,7 @@ public:
             return Color3f(0.0f);
 
         /* The BRDF is simply the albedo / pi */
-        return getAlbedo(bRec) * INV_PI;
+        return m_texture_albedo->lookUp(bRec.uv) * INV_PI;
     }
 
     /// Compute the density of \ref sample() wrt. solid angles
@@ -88,15 +88,7 @@ public:
         /* eval() / pdf() * cos(theta) = albedo. There
            is no need to call these functions. */
         
-        return getAlbedo(bRec);
-    }
-    
-    Color3f getAlbedo(const BSDFQueryRecord &bRec) const {
-        if(m_texture_albedo != nullptr) {
-            return m_texture_albedo->lookUp(bRec.uv);
-        }
-        
-        return m_albedo;
+        return m_texture_albedo->lookUp(bRec.uv);
     }
 
     bool isDiffuse() const {

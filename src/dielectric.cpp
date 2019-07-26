@@ -18,6 +18,7 @@
 
 #include <nori/bsdf.h>
 #include <nori/frame.h>
+#include <nori/texture.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -32,6 +33,11 @@ public:
         m_extIOR = propList.getFloat("extIOR", 1.000277f);
         
         m_albedo = propList.getColor("albedo",1);
+        std::string textureAlbedo = propList.getString("texture_albedo", "none");
+        if(textureAlbedo != "none")
+        m_texture_albedo = new Texture(m_albedo, textureAlbedo);
+        else
+        m_texture_albedo = new Texture(m_albedo);
     }
 
     Color3f eval(const BSDFQueryRecord &) const {
@@ -79,7 +85,7 @@ public:
 
         bRec.eta = 1.f;
     
-        return m_albedo;
+        return m_texture_albedo->lookUp(bRec.uv);
     }
 
     std::string toString() const {
@@ -94,6 +100,7 @@ public:
 private:
     float m_intIOR, m_extIOR;
     Color3f m_albedo;
+    Texture *m_texture_albedo;
 };
 
 NORI_REGISTER_CLASS(Dielectric, "dielectric");

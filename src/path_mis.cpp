@@ -23,6 +23,7 @@ public:
         
     }
     
+    
     Color3f Li(const Scene *scene, Sampler *sampler, const Ray3f &ray, int depth = 0) const {
         return SamplingLight(scene, sampler, ray) + SamplingBSDF(scene, sampler, ray);
     }
@@ -43,6 +44,7 @@ public:
                 return Color3f(0.f);
             else {
                 BSDFQueryRecord bsdfQ = BSDFQueryRecord(its.toLocal(-ray.d));
+                bsdfQ.uv = its.uv;
                 Color3f albedo = its.mesh->getBSDF()->sample(bsdfQ, Point2f(drand48(), drand48()));
                 return 1.057 * albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld(bsdfQ.wo)));
             }
@@ -91,7 +93,7 @@ public:
             directColor = objectNormal * Le * bsdf * 1.f/scene->getEmitterPdf();
         }
         
-        if(drand48() < 0.95f)
+        if(drand48() < 0.95f && depth < 10)
             return weight * 1.f/0.95 * (directColor + albedo * SamplingLight(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
         else
             return Color3f(0.f);
@@ -134,6 +136,11 @@ public:
                 }
             }
         }
+        else if(scene->getEnvmentLight() != nullptr) {
+            EmitterQueryRecord eqr = EmitterQueryRecord(lightInsect.p, its.toWorld(bsdfQ.wo));
+            lightPdf = scene->getEnvmentLight()->pdf(eqr);
+        }
+        
         float bsdfPdf = its.mesh->getBSDF()->pdf(bsdfQ);
         float weight = bsdfPdf/(bsdfPdf + lightPdf);
         if(bsdfPdf == 0 && lightPdf == 0) {
@@ -141,12 +148,11 @@ public:
         }
         
         //russian Roulette
-        if(drand48() < 0.99f)
-            return weight * 1.f/0.99 * (light + albedo * SamplingBSDF(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
+        if(drand48() < 0.95f && depth < 10)
+            return weight * 1.f/0.95 * (light + albedo * SamplingBSDF(scene, sampler, Ray3f(its.p, its.toWorld((bsdfQ.wo))), depth + 1));
         else
             return Color3f(0.f);
     }
-    
     
     
     std::string toString() const {

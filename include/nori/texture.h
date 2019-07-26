@@ -14,14 +14,15 @@ NORI_NAMESPACE_BEGIN
 
 class Texture {
 public:
-    Texture(std::string path);
+    Texture(Color3f defaultVal, std::string path = "none");
     Color3f lookUp(Point2f uv);
     
 private:
     std::vector<Color3f>* texture;
     int imageWidht;
     int imageHeight;
-    Bitmap bitmap;
+    Bitmap *bitmap;
+    Color3f defaultVal;
 };
 
 NORI_NAMESPACE_END
