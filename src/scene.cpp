@@ -28,6 +28,7 @@ NORI_NAMESPACE_BEGIN
 Scene::Scene(const PropertyList &) {
     m_accel = new Accel();
     m_envlight = nullptr;
+    m_homogeneous = nullptr;
 }
 
 Scene::~Scene() {
@@ -36,7 +37,7 @@ Scene::~Scene() {
     delete m_camera;
     delete m_integrator;
     for(auto e : m_emitters)
-        delete e;
+    delete e;
     m_emitters.clear();
     m_envlight = nullptr;
 }
@@ -45,9 +46,9 @@ void Scene::activate() {
     m_accel->build();
     
     if (!m_integrator)
-        throw NoriException("No integrator was specified!");
+    throw NoriException("No integrator was specified!");
     if (!m_camera)
-        throw NoriException("No camera was specified!");
+    throw NoriException("No camera was specified!");
     
     if (!m_sampler) {
         /* Create a default (independent) sampler */
@@ -71,10 +72,10 @@ void Scene::addChild(NoriObject *obj) {
             m_accel->addMesh(mesh);
             m_meshes.push_back(mesh);
             if(mesh->isEmitter())
-                m_emitters.push_back(mesh->getEmitter());
+            m_emitters.push_back(mesh->getEmitter());
         }
-            break;
-            
+        break;
+        
         case EEmitter: {
             //Emitter *emitter = static_cast<Emitter *>(obj);
             /* TBD */
@@ -85,32 +86,36 @@ void Scene::addChild(NoriObject *obj) {
             
             m_emitters.push_back(emitter);
         }
-            break;
-            
+        break;
+        
         case ESampler:
-            if (m_sampler)
-                throw NoriException("There can only be one sampler per scene!");
-            m_sampler = static_cast<Sampler *>(obj);
-            break;
-            
+        if (m_sampler)
+        throw NoriException("There can only be one sampler per scene!");
+        m_sampler = static_cast<Sampler *>(obj);
+        break;
+        
         case ECamera:
-            if (m_camera)
-                throw NoriException("There can only be one camera per scene!");
-            m_camera = static_cast<Camera *>(obj);
-            break;
-            
+        if (m_camera)
+        throw NoriException("There can only be one camera per scene!");
+        m_camera = static_cast<Camera *>(obj);
+        break;
+        
         case EIntegrator:
-            if (m_integrator)
-                throw NoriException("There can only be one integrator per scene!");
-            m_integrator = static_cast<Integrator *>(obj);
-            break;
-            
+        if (m_integrator)
+        throw NoriException("There can only be one integrator per scene!");
+        m_integrator = static_cast<Integrator *>(obj);
+        break;
+        
         case EMedium:
-            
-            
+        if (m_homogeneous) {
+            throw NoriException("There can only be one homogeneous Medium per scene! Please add this medium to another mesh or object");
+        }
+        m_homogeneous = static_cast<Medium *>(obj);
+        break;
+        
         default:
-            throw NoriException("Scene::addChild(<%s>) is not supported!",
-                                classTypeName(obj->getClassType()));
+        throw NoriException("Scene::addChild(<%s>) is not supported!",
+                            classTypeName(obj->getClassType()));
     }
 }
 

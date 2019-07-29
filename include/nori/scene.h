@@ -19,6 +19,7 @@
 #pragma once
 
 #include <nori/accel.h>
+#include <nori/medium.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -69,6 +70,10 @@ public:
 
     /// Return a reference to an array containing all meshes
     const std::vector<Mesh *> &getMeshes() const { return m_meshes; }
+    
+    Medium *getMedium() const {
+        return m_homogeneous;
+    }
 
     /**
      * \brief Intersect a ray against all triangles stored in the scene
@@ -136,6 +141,7 @@ private:
     Accel *m_accel = nullptr;
     std::vector<Emitter *> m_emitters;
     Emitter *m_envlight;
+    Medium *m_homogeneous;
     
 };
 

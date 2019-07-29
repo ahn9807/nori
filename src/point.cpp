@@ -14,7 +14,7 @@ NORI_NAMESPACE_BEGIN
 class PointLight : public Emitter {
 public:
     PointLight(const PropertyList &props) {
-        m_radiance = props.getColor("radiance", 0.2);
+        m_radiance = props.getColor("radiance", 200);
         m_position = props.getPoint("position", 10);
     }
     
@@ -27,7 +27,7 @@ public:
         eqr.wi = eqr.pos - eqr.ref;
         eqr.shadowRay = Ray3f(eqr.ref, eqr.wi);
 
-        return m_radiance / 4 * M_PI * (eqr.ref - eqr.pos).squaredNorm();
+        return m_radiance / (4 * M_PI * (eqr.ref - eqr.pos).squaredNorm());
     }
     
     float pdf(const EmitterQueryRecord &eqr) {

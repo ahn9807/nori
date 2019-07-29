@@ -11,6 +11,7 @@
 #include <nori/emitter.h>
 #include <nori/bsdf.h>
 #include <nori/dpdf.h>
+#include <nori/warp.h>
 
 NORI_NAMESPACE_BEGIN
 

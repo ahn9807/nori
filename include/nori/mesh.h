@@ -22,6 +22,7 @@
 #include <nori/frame.h>
 #include <nori/bbox.h>
 #include <nori/dpdf.h>
+#include <nori/texture.h>
 
 NORI_NAMESPACE_BEGIN
 
@@ -187,6 +188,7 @@ protected:
     Emitter    *m_emitter = nullptr;     ///< Associated emitter, if any
     BoundingBox3f m_bbox;                ///< Bounding box of the mesh
     DiscretePDF   m_PDF;                 ///< junho
+    Texture      *m_texture_normal;       ///< junho
 };
 
 NORI_NAMESPACE_END
