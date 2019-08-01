@@ -68,6 +68,7 @@ add_executable(nori
   include/nori/envmap.h
   include/nori/texture.h
   include/nori/medium.h
+  include/nori/phase.h
 
   # Source code files
   src/bitmap.cpp
@@ -106,6 +107,8 @@ add_executable(nori
   src/envmap.cpp
   src/texture.cpp
   src/homogeneous.cpp
+  src/heterogeneous.cpp
+  src/isotropic.cpp
   src/path_vol.cpp
   src/disney.cpp
 )
