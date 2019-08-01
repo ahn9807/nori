@@ -108,6 +108,8 @@ add_executable(nori
   src/homogeneous.cpp
   src/path_vol.cpp
   src/disney.cpp
+  src/path_spectral.cpp
+  src/dielectric_spectral.cpp
 )
 
 add_definitions(${NANOGUI_EXTRA_DEFS})

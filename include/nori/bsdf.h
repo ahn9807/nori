@@ -38,6 +38,8 @@ struct BSDFQueryRecord {
 
     /// Relative refractive index in the sampled direction
     float eta;
+    
+    float waveLength;
 
     /// Measure associated with the sample
     EMeasure measure;
