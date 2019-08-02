@@ -1,0 +1,75 @@
+<?xml version="1.0" ?>
+<scene>
+	<integrator type="path_spectral"/>
+	<sampler type="independent">
+		<integer name="sampleCount" value="32"/>
+	</sampler>
+	<camera type="perspective">
+		<float name="fov" value="49.13434207760448"/>
+		<float name="nearClip" value="0.10000000149011612"/>
+		<float name="farClip" value="100.0"/>
+		<integer name="width" value="960"/>
+		<integer name="height" value="540"/>
+		<transform name="toWorld">
+			<scale value="1.000000 1.000000 -1.000000"/>
+			<matrix value="-0.9163739085197449,-0.13448967039585114,0.3770572543144226,2.1457388401031494,0.4001438319683075,-0.27942124009132385,0.8728167414665222,4.589775085449219,-0.012027033604681492,0.9507033228874207,0.30986934900283813,2.0046603679656982,0.0,0.0,0.0,1.0"/>
+		</transform>
+	</camera>
+    <emitter type="environment">
+        <string name="path" value="glacier.exr"/>
+    </emitter>
+	<mesh type="obj">
+		<string name="filename" value="meshes/Plane.002_Material.004.obj"/>
+		<transform name="toWorld">
+			<matrix value="1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,4.437222957611084,0.0,0.0,0.0,1.0"/>
+		</transform>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.800000,0.800000,0.800000"/>
+		</bsdf>
+	</mesh>
+	<mesh type="obj">
+		<string name="filename" value="meshes/Plane.001_Material.003.obj"/>
+		<transform name="toWorld">
+			<matrix value="-12.596840858459473,-0.4649525284767151,-0.08306804299354553,0.0,-0.05149633064866066,-0.8517796397209167,12.576776504516602,-2.788670539855957,-0.46949896216392517,12.56828498840332,0.8492821455001831,0.0,0.0,0.0,0.0,1.0"/>
+		</transform>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.800000,0.800000,0.800000"/>
+		</bsdf>
+	</mesh>
+	<mesh type="obj">
+		<string name="filename" value="meshes/Plane_Material.003.obj"/>
+		<transform name="toWorld">
+			<matrix value="10.952922821044922,0.0,0.0,0.0,0.0,10.952922821044922,0.0,0.0,0.0,0.0,10.952922821044922,0.0,0.0,0.0,0.0,1.0"/>
+		</transform>
+		<bsdf type="diffuse">
+			<color name="albedo" value="0.800000,0.800000,0.800000"/>
+		</bsdf>
+	</mesh>
+	<mesh type="obj">
+		<string name="filename" value="meshes/Cylinder.001_Cylinder.000_White_Diamond.000_White_Diamond.005.obj"/>
+		<transform name="toWorld">
+			<matrix value="1.0,0.0,0.0,0.0,0.0,-1.6292068494294654e-07,-1.0,0.0,0.0,1.0,-1.6292068494294654e-07,0.0,0.0,0.0,0.0,1.0"/>
+		</transform>
+		<bsdf type="dielectric_spectral">
+			<color name="albedo" value="0.640000,0.640000,0.80000"/>
+		</bsdf>
+	</mesh>
+	<mesh type="obj">
+		<string name="filename" value="meshes/Cylinder.002_Cylinder.002_White_Diamond.000_White_Diamond.008.obj"/>
+		<transform name="toWorld">
+			<matrix value="1.0,0.0,0.0,0.0,0.0,-1.6292068494294654e-07,-1.0,0.0,0.0,1.0,-1.6292068494294654e-07,0.0,0.0,0.0,0.0,1.0"/>
+		</transform>
+		<bsdf type="dielectric_spectral">
+			<color name="albedo" value="1.0000,1.0000,1.0000"/>
+		</bsdf>
+	</mesh>
+	<mesh type="obj">
+		<string name="filename" value="meshes/Cylinder_Cylinder.001_White_Diamond_White_Diamond.obj"/>
+		<transform name="toWorld">
+			<matrix value="1.0,0.0,0.0,0.0,0.0,-1.6292068494294654e-07,-1.0,0.0,0.0,1.0,-1.6292068494294654e-07,0.0,0.0,0.0,0.0,1.0"/>
+		</transform>
+		<bsdf type="dielectric_spectral">
+			<color name="albedo" value="0.90000,0.60000,0.40000"/>
+		</bsdf>
+	</mesh>
+</scene>
