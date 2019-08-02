@@ -85,7 +85,7 @@ public:
         
         bRec.eta = 1.f;
         
-        return 1.f;
+        return m_texture_albedo->lookUp(bRec.uv);
     }
     
     float CalculateIOR(float waveLength) const {

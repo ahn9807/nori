@@ -27,6 +27,8 @@ public:
         }
         else
             sampleWaveLength = 700.0f;
+        
+        sampleWaveLength = 380 + (750 - 380) * drand48();
 
         return Li_spectral_mat(scene, sampler, ray, sampleWaveLength);
     }
